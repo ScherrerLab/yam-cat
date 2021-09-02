@@ -1,2 +1,2 @@
 # yam-cat
-Yet Another Multi Camera Acquisition Tool
+**Y**et **A**nother **M**ulti **C**amera **A**cquisition **T**ool
