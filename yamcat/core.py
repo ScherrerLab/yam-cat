@@ -31,6 +31,7 @@ class ArduinoTrigger(Process):
         # because square wave pulses
         # high for first half, low for second half
         self.delay = (1 / fps) / 2
+        logger.info(f'Arduino is ready')
 
     def run(self) -> None:
         logger.info(f'Started trigger')
@@ -48,20 +49,24 @@ class Acquire(Process):
             queue: Queue,
             fps: int,
             duration: int,
+            trigger_line: int
     ):
         super().__init__()
         self.queue = queue
         self.camera_name = camera_name
 
         logger.info(f'Connecting to camera: {self.camera_name}')
+        # TODO: Have a way to choose the camera!!!
         self.camera = pylon.InstantCamera(pylon.TlFactory.GetInstance().CreateFirstDevice())
         self.camera.Open()
 
         self.fps = 50  # framerate
         self.duration = 60  # duration in seconds
 
+        self.trigger_line = trigger_line
+
         self.camera.Width.SetValue(1024)
-        self.camera.Height.setValue(1024)
+        self.camera.Height.SetValue(1024)
 
         # number of frames to grab
         self.nframes_grab = fps * duration
@@ -70,7 +75,7 @@ class Acquire(Process):
 
         self.camera.TriggerSelector.SetValue('FrameStart')
         self.camera.TriggerMode.SetValue('On')
-        self.camera.TriggerSource.SetValue('Line2')  # for old cam 1920, black wire
+        self.camera.TriggerSource.SetValue(f'Line{self.trigger_line}')  # for old cam 1920, black wire
         self.camera.TriggerActivation.SetValue('RisingEdge')
 
         self.converter = pylon.ImageFormatConverter()
