@@ -5,6 +5,10 @@ from typing import *
 from pathlib import Path
 from pyfirmata import Arduino, util
 import time
+import logging
+
+
+logger = logging.getLogger()
 
 
 class ArduinoTrigger(Process):
@@ -16,6 +20,7 @@ class ArduinoTrigger(Process):
     ):
         super().__init__()
 
+        logger.info(f'Connecting to Arduino at: {address}, pin#: {pin}')
         self.board = Arduino(address)
         self.pin = pin
 
@@ -28,6 +33,7 @@ class ArduinoTrigger(Process):
         self.delay = (1 / fps) / 2
 
     def run(self) -> None:
+        logger.info(f'Started trigger')
         while True:
             self.board.digital[self.pin].write(1)
             time.sleep(self.delay)
@@ -45,11 +51,17 @@ class Acquire(Process):
     ):
         super().__init__()
         self.queue = queue
+        self.camera_name = camera_name
+
+        logger.info(f'Connecting to camera: {self.camera_name}')
         self.camera = pylon.InstantCamera(pylon.TlFactory.GetInstance().CreateFirstDevice())
         self.camera.Open()
 
         self.fps = 50  # framerate
         self.duration = 60  # duration in seconds
+
+        self.camera.Width.SetValue(1024)
+        self.camera.Height.setValue(1024)
 
         # number of frames to grab
         self.nframes_grab = fps * duration
@@ -66,6 +78,7 @@ class Acquire(Process):
         # converting to opencv bgr format
         self.converter.OutputPixelFormat = pylon.PixelType_BGR8packed
         self.converter.OutputBitAlignment = pylon.OutputBitAlignment_MsbAligned
+        logger.info(f'Camera ready: {camera_name}')
 
     def run(self) -> None:
         self.camera.StartGrabbingMax(self.nframes_grab)
@@ -74,7 +87,7 @@ class Acquire(Process):
             grabResult = self.camera.RetrieveResult(5000, pylon.TimeoutHandling_ThrowException)
 
             if not grabResult.GrabSucceeded():
-                print(f"Couldn't grab frame\n{grabResult.ErrorDescription()}")
+                logger.info(f"{self.camera_name}: Couldn't grab frame\n{grabResult.ErrorDescription()}")
                 return
 
             image = self.converter.Convert(grabResult)
@@ -88,12 +101,14 @@ class Acquire(Process):
 class Writer(Process):
     def __init__(
             self,
+            camera_name: str,
             queue: Queue,
             output_path: Union[Path, str],
             video_params: dict = None
     ):
         super().__init__()
         self.queue = queue
+        self.camera_name = camera_name
         self.output_path = str(output_path)
 
         if video_params is None:
@@ -113,6 +128,7 @@ class Writer(Process):
             self.video_params['dims'],
             isColor=True
         )
+        logger.info(f'Writer ready for: {self.camera_name}')
 
     def run(self) -> None:
         while True:
@@ -141,3 +157,4 @@ class Manager(Process):
             time.sleep(1)
 
         self.arduino_trigger.kill()
+        logger.info('Manager killed ArduinoTrigger process')
