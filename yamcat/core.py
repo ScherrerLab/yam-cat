@@ -3,6 +3,36 @@ import cv2
 from multiprocessing import Process, Queue
 from typing import *
 from pathlib import Path
+from pyfirmata import Arduino, util
+import time
+
+
+class ArduinoTrigger(Process):
+    def __init__(
+            self,
+            address: str,
+            pin: int,
+            fps: int,
+    ):
+        super().__init__()
+
+        self.board = Arduino(address)
+        self.pin = pin
+
+        self.board.digital[pin].write(0)
+
+        self.fps = fps
+
+        # because square wave pulses
+        # high for first half, low for second half
+        self.delay = (1 / fps) / 2
+
+    def run(self) -> None:
+        while True:
+            self.board.digital[self.pin].write(1)
+            time.sleep(self.delay)
+            self.board.digital[self.pin].write(0)
+            time.sleep(self.delay)
 
 
 class Acquire(Process):
@@ -52,17 +82,19 @@ class Acquire(Process):
 
             self.queue.put(frame)
 
+        self.queue.put(None)
+
 
 class Writer(Process):
     def __init__(
             self,
             queue: Queue,
-            output_path: str,
+            output_path: Union[Path, str],
             video_params: dict = None
     ):
         super().__init__()
         self.queue = queue
-        self.output_path = output_path
+        self.output_path = str(output_path)
 
         if video_params is None:
             self.video_params = {
@@ -91,3 +123,21 @@ class Writer(Process):
                 return
 
             self.video_writer.write(frame)
+
+
+class Manager(Process):
+    def __init__(
+            self,
+            apl: List[Acquire],
+            arduino_trigger: ArduinoTrigger
+    ):
+        super().__init__()
+        self.apl = apl
+        self.arduino_trigger = arduino_trigger
+
+    def run(self) -> None:
+        # just sleeps until all acquisition processes have finished
+        while all(map(lambda x: not x, [p.is_alive() for p in self.apl])):
+            time.sleep(1)
+
+        self.arduino_trigger.kill()
