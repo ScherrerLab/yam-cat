@@ -7,7 +7,7 @@ board.digital[9].write(0)
 framerate = 60
 
 # divide by two for high and low signal outputs
-delay = (1000 / framerate) / 2
+delay = (1 / framerate) / 2
 
 HIGH = 1
 LOW = 0
