@@ -5,14 +5,16 @@ from typing import *
 from pathlib import Path
 
 
-class Writer(Process):
+class Acquire(Process):
     def __init__(
             self,
+            camera_name: str,
             queue: Queue,
             fps: int,
             duration: int,
-            output_path: Union[Path, str]
     ):
+        super().__init__()
+        self.queue = queue
         self.camera = pylon.InstantCamera(pylon.TlFactory.GetInstance().CreateFirstDevice())
         self.camera.Open()
 
@@ -29,14 +31,63 @@ class Writer(Process):
         self.camera.TriggerSource.SetValue('Line2')  # for old cam 1920, black wire
         self.camera.TriggerActivation.SetValue('RisingEdge')
 
-        self.output_path = output_path
+        self.converter = pylon.ImageFormatConverter()
 
-    def run(self):
+        # converting to opencv bgr format
+        self.converter.OutputPixelFormat = pylon.PixelType_BGR8packed
+        self.converter.OutputBitAlignment = pylon.OutputBitAlignment_MsbAligned
+
+    def run(self) -> None:
         self.camera.StartGrabbingMax(self.nframes_grab)
 
         while self.camera.IsGrabbing():
-            grabbed = self.camera.RetrieveResult(5000, pylon.TimeoutHandling_ThrowException)
+            grabResult = self.camera.RetrieveResult(5000, pylon.TimeoutHandling_ThrowException)
 
-            if grabbed.GrabSucceeded():
-                # put frame in queue
-                pass
+            if not grabResult.GrabSucceeded():
+                print(f"Couldn't grab frame\n{grabResult.ErrorDescription()}")
+                return
+
+            image = self.converter.Convert(grabResult)
+            frame = image.getArray()
+
+            self.queue.put(frame)
+
+
+class Writer(Process):
+    def __init__(
+            self,
+            queue: Queue,
+            output_path: str,
+            video_params: dict = None
+    ):
+        super().__init__()
+        self.queue = queue
+        self.output_path = output_path
+
+        if video_params is None:
+            self.video_params = {
+                'fourcc': 'X264',
+                'fps': 50,
+                'dims': (1024, 1024)
+            }
+        else:
+            self.video_params = video_params
+
+        self.fourcc = cv2.VideoWriter_fourcc(*"fourcc")
+        self.video_writer = cv2.VideoWriter(
+            output_path,
+            self.fourcc,
+            self.video_params['fps'],
+            self.video_params['dims'],
+            isColor=True
+        )
+
+    def run(self) -> None:
+        while True:
+            frame = self.queue.get()
+
+            if frame is None:
+                print("Video writer finished")
+                return
+
+            self.video_writer.write(frame)
