@@ -23,8 +23,8 @@ class ArduinoTrigger(Process):
         logger.info(f'Connecting to Arduino at: {address}, pin#: {pin}')
         self.board = Arduino(address)
         self.pin = pin
-
-        self.board.digital[pin].write(0)
+        
+        self.reset_pin()
 
         self.fps = fps
 
@@ -41,10 +41,18 @@ class ArduinoTrigger(Process):
             self.board.digital[self.pin].write(0)
             time.sleep(self.delay)
 
+    def reset_pin(self):
+        self.board.digital[self.pin].write(0)
+
+    def kill(self) -> None:
+        self.reset_pin()
+        super(ArduinoTrigger, self).kill()
+
 
 class Acquire(Process):
     def __init__(
             self,
+            device,
             camera_name: str,
             queue: Queue,
             fps: int,
@@ -57,7 +65,7 @@ class Acquire(Process):
 
         logger.info(f'Connecting to camera: {self.camera_name}')
         # TODO: Have a way to choose the camera!!!
-        self.camera = pylon.InstantCamera(pylon.TlFactory.GetInstance().CreateFirstDevice())
+        self.camera = pylon.InstantCamera(pylon.TlFactory.GetInstance().CreateDevice(device))
         self.camera.Open()
 
         self.fps = 50  # framerate
@@ -75,8 +83,10 @@ class Acquire(Process):
 
         self.camera.TriggerSelector.SetValue('FrameStart')
         self.camera.TriggerMode.SetValue('On')
-        self.camera.TriggerSource.SetValue(f'Line{self.trigger_line}')  # for old cam 1920, black wire
         self.camera.TriggerActivation.SetValue('RisingEdge')
+        trigger_source = f'Line{self.trigger_line}'
+        logging.info(trigger_source)
+        self.camera.TriggerSource.SetValue(trigger_source)
 
         self.converter = pylon.ImageFormatConverter()
 
@@ -87,6 +97,7 @@ class Acquire(Process):
 
     def run(self) -> None:
         self.camera.StartGrabbingMax(self.nframes_grab)
+        logger.info("Grabbing started")
 
         while self.camera.IsGrabbing():
             grabResult = self.camera.RetrieveResult(5000, pylon.TimeoutHandling_ThrowException)
@@ -95,6 +106,7 @@ class Acquire(Process):
                 logger.info(f"{self.camera_name}: Couldn't grab frame\n{grabResult.ErrorDescription()}")
                 return
 
+            logger.info("Getting image")
             image = self.converter.Convert(grabResult)
             frame = image.getArray()
 
@@ -118,14 +130,14 @@ class Writer(Process):
 
         if video_params is None:
             self.video_params = {
-                'fourcc': 'X264',
+                'fourcc': 'mp4v',
                 'fps': 50,
                 'dims': (1024, 1024)
             }
         else:
             self.video_params = video_params
 
-        self.fourcc = cv2.VideoWriter_fourcc(*"fourcc")
+        self.fourcc = cv2.VideoWriter_fourcc(*self.video_params['fourcc'])
         self.video_writer = cv2.VideoWriter(
             output_path,
             self.fourcc,
@@ -155,11 +167,14 @@ class Manager(Process):
         super().__init__()
         self.apl = apl
         self.arduino_trigger = arduino_trigger
+        logger.info("Started Manager")
 
     def run(self) -> None:
+        logger.info("Manager is running")
         # just sleeps until all acquisition processes have finished
         while all(map(lambda x: not x, [p.is_alive() for p in self.apl])):
             time.sleep(1)
+            logger.info("Manager is sleeping")
 
         self.arduino_trigger.kill()
         logger.info('Manager killed ArduinoTrigger process')
