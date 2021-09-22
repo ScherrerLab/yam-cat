@@ -53,10 +53,7 @@ def unpack_args(params: dict):
 
 
 if __name__ == '__main__':
-    q_left = Queue()
-    q_right = Queue()
-
-    arduino_trigger = ArduinoTrigger(address='/dev/ttyACM0', pin=10, fps=50)
+    arduino_trigger = ArduinoTrigger(address='/dev/ttyACM1', pin=9, fps=50)
 
     tlFactory = pylon.TlFactory.GetInstance()
     devices = tlFactory.EnumerateDevices()
@@ -69,7 +66,7 @@ if __name__ == '__main__':
             'device-guid':  guids[0],
             'camera-name':  'left',
             'fps':          50,
-            'duration':     60,
+            'duration':     15,
             'trigger-line': trigger_lines[0],
             'video-output-path': '/home/lab/vidleft.avi',
             'fourcc':       'mp4v',

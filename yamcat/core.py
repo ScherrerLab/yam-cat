@@ -23,8 +23,9 @@ class ArduinoTrigger(Process):
         logger.info(f'Connecting to Arduino at: {address}, pin#: {pin}')
         self.board = Arduino(address)
         self.pin = pin
-        
-        self.reset_pin()
+
+        self.board.digital[self.pin].write(0)
+        # self.reset_pin()
 
         self.fps = fps
 
