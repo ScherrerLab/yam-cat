@@ -5,6 +5,9 @@ import logging
 from datetime import datetime
 from pypylon import pylon
 import time
+import subprocess
+import os
+
 
 log_level = 'DEBUG'
 log_format = "%(asctime)s %(levelname)s %(pathname)s %(lineno)s \n %(message)s "
@@ -39,6 +42,16 @@ root_logger.addHandler(
 )
 
 
+def unpack_args(params: dict):
+    return [
+        arg for arggroup in [
+            arggroup.split(' ') for arggroup in [
+                f'--{k} {v}' for (k, v) in params.items()
+            ]
+        ] for arg in arggroup
+    ]
+
+
 if __name__ == '__main__':
     q_left = Queue()
     q_right = Queue()
@@ -48,31 +61,62 @@ if __name__ == '__main__':
     tlFactory = pylon.TlFactory.GetInstance()
     devices = tlFactory.EnumerateDevices()
 
-    acquire_left = Acquire(devices[0], 'left', q_left, fps=50, duration=60, trigger_line=4)
-    acquire_right = Acquire(devices[1], 'right', q_right, fps=50, duration=60, trigger_line=2)
+    guids = ['2676016BC31A', '267601CA59E7']
+    trigger_lines = [4, 2]
 
-    manager = Manager(apl=[acquire_left, acquire_right], arduino_trigger=arduino_trigger)
+    acquire_params_left = \
+        {
+            'device-guid':  guids[0],
+            'camera-name':  'left',
+            'fps':          50,
+            'duration':     60,
+            'trigger-line': trigger_lines[0],
+            'video-output-path': '/home/lab/vidleft.avi',
+            'fourcc':       'mp4v',
+            'dims':         '1024,1024'
+        }
 
-    writer_left = Writer('left', q_left, '/home/lab/vid_left.avi', video_params=None)
-    writer_right = Writer('right', q_right, '/home/lab/vid_right.avi', video_params=None)
+    acquire_params_right = acquire_params_left.copy()
+    acquire_params_right.update(
+        {
+            'device-guid': guids[1],
+            'camera-name': 'right',
+            'trigger-line': trigger_lines[1],
+            'video-output-path': '/home/lab/vidright.avi',
+        }
+    )
 
-    writer_left.start()
-    writer_right.start()
+    args_left = unpack_args(acquire_params_left)
+    args_right = unpack_args(acquire_params_right)
 
-    acquire_left.start()
-    # acquire_right.start()
+    acquire_subproc_path = '/home/lab/repos/yam-cat/yamcat/acquire_subprocess.py'
 
-    #arduino_trigger.start()
+    # subprocess.run(['/home/lab/python-venvs/yamcat/bin/python',
+    #                 acquire_subproc_path] + args_left, capture_output=True)
+    # subprocess.run(['/home/lab/python-venvs/yamcat/bin/python',
+    #                 acquire_subproc_path] + args_right, capture_output=True)
 
-    root_logger.info("Sleeping")
-    while True:
-        time.sleep(1)
+    subprocess.Popen(
+        ['python', acquire_subproc_path] + args_left, env=os.environ.copy()
+    )
 
-    # while all(map(lambda x: not x, [acquire_left.is_alive(), acquire_right.is_alive()])):
+    subprocess.Popen(
+        ['python', acquire_subproc_path] + args_right, env=os.environ.copy()
+    )
+
+    time.sleep(5)
+
+    arduino_trigger.start()
+    #
+    # root_logger.info("Sleeping")
+    # while True:
     #     time.sleep(1)
-
-    root_logger.info("waiting for acquisition to finish")
-
-    arduino_trigger.kill()
-    root_logger.info('Killed ArduinoTrigger process')
-
+    #
+    # # while all(map(lambda x: not x, [acquire_left.is_alive(), acquire_right.is_alive()])):
+    # #     time.sleep(1)
+    #
+    # root_logger.info("waiting for acquisition to finish")
+    #
+    # arduino_trigger.kill()
+    # root_logger.info('Killed ArduinoTrigger process')
+    #

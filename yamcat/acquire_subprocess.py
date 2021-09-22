@@ -21,7 +21,7 @@ def exception_hook(exc_type, exc_value, traceback):
 @click.option('--trigger-line', type=int)
 @click.option('--video-output-path', type=str)
 @click.option('--fourcc', type=str)
-@click.option('--dims', type=(int, int))
+@click.option('--dims', type=str)
 def main(
         device_guid,
         camera_name,
@@ -61,6 +61,8 @@ def main(
     )
     
     queue = Queue()
+
+    dims = tuple(map(int, dims.split(',')))
 
     writer = Writer(camera_name, queue, video_output_path, fourcc, dims)
     writer.start()
@@ -112,7 +114,7 @@ def main(
     logger.info("Grabbing started")
 
     while camera.IsGrabbing():
-        grabResult = camera.RetrieveResult(5000, pylon.TimeoutHandling_ThrowException)
+        grabResult = camera.RetrieveResult(50000, pylon.TimeoutHandling_ThrowException)
 
         if not grabResult.GrabSucceeded():
             logger.info(f"{camera_name}: Couldn't grab frame\n{grabResult.ErrorDescription()}")
