@@ -121,28 +121,23 @@ class Writer(Process):
             camera_name: str,
             queue: Queue,
             output_path: Union[Path, str],
-            video_params: dict = None
+            fps: int,
+            fourcc: str = 'mp4v',
+            dims: Tuple[int, int] = (1024, 1024)
     ):
         super().__init__()
         self.queue = queue
         self.camera_name = camera_name
         self.output_path = str(output_path)
 
-        if video_params is None:
-            self.video_params = {
-                'fourcc': 'mp4v',
-                'fps': 50,
-                'dims': (1024, 1024)
-            }
-        else:
-            self.video_params = video_params
+        fps = int(50)
 
-        self.fourcc = cv2.VideoWriter_fourcc(*self.video_params['fourcc'])
+        self.fourcc = cv2.VideoWriter_fourcc(*"mp4v")
         self.video_writer = cv2.VideoWriter(
             output_path,
             self.fourcc,
-            self.video_params['fps'],
-            self.video_params['dims'],
+            fps,
+            dims,
             isColor=True
         )
         logger.info(f'Writer ready for: {self.camera_name}')
