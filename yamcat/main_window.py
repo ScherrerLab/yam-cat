@@ -73,11 +73,15 @@ class MainWindow(QtWidgets.QMainWindow):
         self.ui.setupUi(self)
 
         self.scan_cameras()
+        self.ui.pushButtonReScanCameras.clicked.connect(self.scan_cameras)
+
+        self.ui.listWidgetCameraName.itemChanged.connect(self.camera_config_changed)
+        self.ui.listWidgetCameraName.itemClicked.connect(self.highlight_preview)
+
+        self.ui.listWidgetCameraGUID.itemClicked.connect(self.highlight_preview)
+        self.ui.listWidgetTriggerLine.itemClicked.connect(self.highlight_preview)
 
         self.camera_guids: List[str] = None
-
-    def sync_camera_trigger_items(self):
-        pass
 
     def scan_cameras(self):
         self.camera_guids = get_basler_camera_guids()
@@ -88,8 +92,17 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.ui.listWidgetCameraGUID.addItems(self.camera_guids)
 
+        # Use the config yaml to set default trigger lines for the cameras using their GUIDs
         for cg in self.camera_guids:
             self.ui.listWidgetTriggerLine.addItems(get_default_config()['camera_guids'][cg])
+
+        # populate camera name list widget
+        for i in range(len(self.camera_guids)):
+            self.ui.listWidgetCameraGUID.addItem(str(i))
+
+        # make them editable
+        for item in self.ui.listWidgetCameraName.items():
+            item.setFlags(item.flags() | QtCore.Qt.ItemIsEditable)
 
         for item in self.ui.listWidgetCameraGUID.items():
             item.setFlags(item.flags() | QtCore.Qt.ItemIsEditable)
@@ -97,16 +110,24 @@ class MainWindow(QtWidgets.QMainWindow):
         for item in self.ui.listWidgetTriggerLine.items():
             item.item.setFlags(item.flags() | QtCore.Qt.ItemIsEditable)
 
-        
-
-    def camera_name_moved(self):
-        pass
-
     def camera_config_changed(self):
         pass
 
     def help_filenames(self):
         pass
+
+    def get_savedir(self) -> Path:
+        parent_dir = self.ui.lineEditParentDir.text()
+        subdir = self.ui.lineEditVideoSubDir.text()
+
+        if self.ui.checkBoxNumericalSuffix.isChecked():
+            suffix = self.ui.spinBoxNumericalSuffix
+        else:
+            suffix = ''
+
+        savedir = Path(parent_dir).join(f'{subdir}-{suffix}')
+
+        return savedir
 
     def record(self):
         pass
@@ -115,4 +136,7 @@ class MainWindow(QtWidgets.QMainWindow):
         pass
 
     def preview(self):
+        pass
+
+    def highlight_preview(self):
         pass
