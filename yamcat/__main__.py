@@ -1,5 +1,5 @@
 import sys
-from core import ArduinoTrigger, Acquire, Writer, Manager
+from core import ArduinoTrigger, Writer
 from multiprocessing import Queue
 import logging
 from datetime import datetime
