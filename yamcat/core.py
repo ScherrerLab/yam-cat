@@ -1,4 +1,3 @@
-from pypylon import pylon
 import cv2
 from multiprocessing import Process, Queue
 from typing import *
