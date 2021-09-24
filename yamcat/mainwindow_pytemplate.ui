@@ -56,7 +56,7 @@ You may drag and drop items in this list so that camera names and GUIDs correspo
                   <bool>true</bool>
                  </property>
                  <property name="selectionMode">
-                  <enum>QAbstractItemView::ExtendedSelection</enum>
+                  <enum>QAbstractItemView::SingleSelection</enum>
                  </property>
                  <property name="selectionBehavior">
                   <enum>QAbstractItemView::SelectRows</enum>
@@ -103,9 +103,7 @@ You may drag and drop items in this list so that camera names and GUIDs correspo
                <item>
                 <widget class="QLabel" name="label_2">
                  <property name="toolTip">
-                  <string>Unique hardware identifier for the camera.
-You may drag and drop items in this list so that camera names and GUIDs correspond.
-Note that Trigger lines will move along with Camera GUIDs.</string>
+                  <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Unique hardware identifier for the camera.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                  </property>
                  <property name="text">
                   <string>Camera GUID</string>
@@ -115,21 +113,19 @@ Note that Trigger lines will move along with Camera GUIDs.</string>
                <item>
                 <widget class="QListWidget" name="listWidgetCameraGUID">
                  <property name="toolTip">
-                  <string>Unique hardware identifier for the camera.
-You may drag and drop items in this list so that camera names and GUIDs correspond.
-Note that Trigger lines will move along with Camera GUIDs.</string>
+                  <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Unique hardware identifier for the camera.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                  </property>
                  <property name="dragDropMode">
-                  <enum>QAbstractItemView::InternalMove</enum>
+                  <enum>QAbstractItemView::NoDragDrop</enum>
                  </property>
                  <property name="defaultDropAction">
-                  <enum>Qt::MoveAction</enum>
+                  <enum>Qt::CopyAction</enum>
                  </property>
                  <property name="alternatingRowColors">
                   <bool>true</bool>
                  </property>
                  <property name="selectionMode">
-                  <enum>QAbstractItemView::ExtendedSelection</enum>
+                  <enum>QAbstractItemView::SingleSelection</enum>
                  </property>
                  <property name="selectionBehavior">
                   <enum>QAbstractItemView::SelectRows</enum>
@@ -173,7 +169,7 @@ Note that Trigger lines will move along with Camera GUIDs.</string>
                <item>
                 <widget class="QLabel" name="label_3">
                  <property name="toolTip">
-                  <string/>
+                  <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Trigger line to use to trigger frame capture from the camera.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                  </property>
                  <property name="text">
                   <string>Trigger Line</string>
@@ -201,21 +197,19 @@ Note that Trigger lines will move along with Camera GUIDs.</string>
                   </size>
                  </property>
                  <property name="toolTip">
-                  <string>Trigger line to use to trigger frame capture from the camera.
-You may drag and drop items in this list so that camera names and GUIDs correspond.
-Note that Trigger lines will move along with Camera GUIDs.</string>
+                  <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Trigger line to use to trigger frame capture from the camera.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                  </property>
                  <property name="dragDropMode">
-                  <enum>QAbstractItemView::InternalMove</enum>
+                  <enum>QAbstractItemView::NoDragDrop</enum>
                  </property>
                  <property name="defaultDropAction">
-                  <enum>Qt::MoveAction</enum>
+                  <enum>Qt::CopyAction</enum>
                  </property>
                  <property name="alternatingRowColors">
                   <bool>true</bool>
                  </property>
                  <property name="selectionMode">
-                  <enum>QAbstractItemView::ExtendedSelection</enum>
+                  <enum>QAbstractItemView::SingleSelection</enum>
                  </property>
                  <property name="selectionBehavior">
                   <enum>QAbstractItemView::SelectRows</enum>
@@ -426,14 +420,14 @@ This may effect your camera names and the order!</string>
           <item>
            <widget class="QLabel" name="label_9">
             <property name="text">
-             <string>Save dir:</string>
+             <string>Parent dir:</string>
             </property>
            </widget>
           </item>
           <item>
-           <widget class="QLineEdit" name="lineEditSaveDir">
+           <widget class="QLineEdit" name="lineEditParentDir">
             <property name="toolTip">
-             <string>Directory for saving the video files.</string>
+             <string>Parent directory for subdirs which contain the video files</string>
             </property>
             <property name="placeholderText">
              <string>/path/to/savedir</string>
@@ -509,12 +503,12 @@ This may effect your camera names and the order!</string>
              <string>Name that is added as a prefix to each video and subdir.</string>
             </property>
             <property name="text">
-             <string>Name for videos:</string>
+             <string>Video subdir</string>
             </property>
            </widget>
           </item>
           <item>
-           <widget class="QLineEdit" name="lineEditNameVideos">
+           <widget class="QLineEdit" name="lineEditVideoSubDir">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
               <horstretch>0</horstretch>
@@ -626,12 +620,12 @@ This may effect your camera names and the order!</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>202</x>
-     <y>438</y>
+     <x>211</x>
+     <y>651</y>
     </hint>
     <hint type="destinationlabel">
-     <x>321</x>
-     <y>437</y>
+     <x>347</x>
+     <y>656</y>
     </hint>
    </hints>
   </connection>
