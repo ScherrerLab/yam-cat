@@ -88,11 +88,6 @@ if __name__ == '__main__':
 
     acquire_subproc_path = '/home/lab/repos/yam-cat/yamcat/acquire_subprocess.py'
 
-    # subprocess.run(['/home/lab/python-venvs/yamcat/bin/python',
-    #                 acquire_subproc_path] + args_left, capture_output=True)
-    # subprocess.run(['/home/lab/python-venvs/yamcat/bin/python',
-    #                 acquire_subproc_path] + args_right, capture_output=True)
-
     subprocess.Popen(
         ['python', acquire_subproc_path] + args_left, env=os.environ.copy()
     )
@@ -104,16 +99,3 @@ if __name__ == '__main__':
     time.sleep(5)
 
     arduino_trigger.start()
-    #
-    # root_logger.info("Sleeping")
-    # while True:
-    #     time.sleep(1)
-    #
-    # # while all(map(lambda x: not x, [acquire_left.is_alive(), acquire_right.is_alive()])):
-    # #     time.sleep(1)
-    #
-    # root_logger.info("waiting for acquisition to finish")
-    #
-    # arduino_trigger.kill()
-    # root_logger.info('Killed ArduinoTrigger process')
-    #
