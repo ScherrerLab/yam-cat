@@ -132,11 +132,6 @@ def main(
         print("Waiting for writer to finish...")
         sleep(1)
     
-    #acquire(queue, device, camera_name, fps, duration, trigger_line)
-
-
-def acquire(queue, device, camera_name, fps, duration, trigger_line):
-    pass
 
 if __name__ == '__main__':
     main()
