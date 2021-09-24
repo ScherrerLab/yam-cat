@@ -86,25 +86,3 @@ class Writer(Process):
                 return
 
             self.video_writer.write(frame)
-
-
-class Manager(Process):
-    def __init__(
-            self,
-            apl: List[Acquire],
-            arduino_trigger: ArduinoTrigger
-    ):
-        super().__init__()
-        self.apl = apl
-        self.arduino_trigger = arduino_trigger
-        logger.info("Started Manager")
-
-    def run(self) -> None:
-        logger.info("Manager is running")
-        # just sleeps until all acquisition processes have finished
-        while all(map(lambda x: not x, [p.is_alive() for p in self.apl])):
-            time.sleep(1)
-            logger.info("Manager is sleeping")
-
-        self.arduino_trigger.kill()
-        logger.info('Manager killed ArduinoTrigger process')
