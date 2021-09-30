@@ -33,14 +33,14 @@
             </widget>
            </item>
            <item>
-            <widget class="QLineEdit" name="lineEdit">
+            <widget class="QLineEdit" name="lineEditArduinoAddress">
              <property name="placeholderText">
               <string>/dev/ttyX</string>
              </property>
             </widget>
            </item>
            <item>
-            <widget class="QPushButton" name="pushButton">
+            <widget class="QPushButton" name="pushButtonConnectArduino">
              <property name="text">
               <string>Connect</string>
              </property>
@@ -535,7 +535,7 @@ This may effect your camera names and the order!</string>
               <string>Name that is added as a prefix to each video and subdir.</string>
              </property>
              <property name="text">
-              <string>Video subdir</string>
+              <string>Video subdir name:</string>
              </property>
             </widget>
            </item>
@@ -584,18 +584,30 @@ This may effect your camera names and the order!</string>
        <layout class="QHBoxLayout" name="horizontalLayout_6">
         <item>
          <widget class="QPushButton" name="pushButtonPreview">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
           <property name="text">
            <string>Preview</string>
+          </property>
+          <property name="checkable">
+           <bool>true</bool>
           </property>
          </widget>
         </item>
         <item>
          <widget class="QPushButton" name="pushButtonPrime">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
           <property name="toolTip">
            <string>Get the camera ready for recording</string>
           </property>
           <property name="text">
            <string>Prime</string>
+          </property>
+          <property name="checkable">
+           <bool>true</bool>
           </property>
          </widget>
         </item>
@@ -611,6 +623,9 @@ This may effect your camera names and the order!</string>
         </item>
         <item>
          <widget class="QPushButton" name="pushButtonAbort">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
           <property name="text">
            <string>Abort</string>
           </property>
@@ -644,7 +659,7 @@ This may effect your camera names and the order!</string>
      <x>0</x>
      <y>0</y>
      <width>1445</width>
-     <height>22</height>
+     <height>30</height>
     </rect>
    </property>
   </widget>
@@ -657,6 +672,29 @@ This may effect your camera names and the order!</string>
    <header>pyqtgraph</header>
   </customwidget>
  </customwidgets>
+ <tabstops>
+  <tabstop>lineEditArduinoAddress</tabstop>
+  <tabstop>pushButtonConnectArduino</tabstop>
+  <tabstop>listWidgetCameraName</tabstop>
+  <tabstop>listWidgetCameraGUID</tabstop>
+  <tabstop>listWidgetTriggerLine</tabstop>
+  <tabstop>pushButtonReScanCameras</tabstop>
+  <tabstop>spinBoxDuration</tabstop>
+  <tabstop>comboBoxVideoFormat</tabstop>
+  <tabstop>spinBoxFramerate</tabstop>
+  <tabstop>spinBoxWidth</tabstop>
+  <tabstop>spinBoxHeight</tabstop>
+  <tabstop>lineEditParentDir</tabstop>
+  <tabstop>checkBoxNumericalSuffix</tabstop>
+  <tabstop>spinBoxNumericalSuffix</tabstop>
+  <tabstop>lineEditVideoSubDir</tabstop>
+  <tabstop>pushButtonHelpFileNames</tabstop>
+  <tabstop>pushButtonPreview</tabstop>
+  <tabstop>pushButtonPrime</tabstop>
+  <tabstop>pushButtonRecord</tabstop>
+  <tabstop>pushButtonAbort</tabstop>
+  <tabstop>graphicsView</tabstop>
+ </tabstops>
  <resources/>
  <connections>
   <connection>

@@ -7,6 +7,7 @@ from functools import wraps
 import traceback
 from logging import getLogger
 from .utils import *
+from .params import CameraConfig, Params
 
 
 # from mesmerize qdialogs
@@ -58,11 +59,14 @@ def present_exceptions(title: str = 'error', msg: str = 'The following error occ
     return catcher
 
 
-class CameraConfig():
-    def __init__(self, guid: str, trigger_line: int, name: str = None):
-        self.guid: str = guid
-        self.trigger_line: int = trigger_line
-        self.name: str = None
+def unpack_args(params: dict):
+    return [
+        arg for arggroup in [
+            arggroup.split(' ') for arggroup in [
+                f'--{k} {v}' for (k, v) in params.items()
+            ]
+        ] for arg in arggroup
+    ]
 
 
 class MainWindow(QtWidgets.QMainWindow):
@@ -82,6 +86,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.ui.listWidgetTriggerLine.itemClicked.connect(self.highlight_preview)
 
         self.camera_guids: List[str] = None
+        self.params: Params = None
 
     def scan_cameras(self):
         self.camera_guids = get_basler_camera_guids()
@@ -129,13 +134,129 @@ class MainWindow(QtWidgets.QMainWindow):
 
         return savedir
 
+    def set_ui_mode(self, mode: str):
+        if mode == 'arduino-connected':
+            self.ui.pushButtonPreview.setEnabled(True)
+            self.ui.pushButtonPrime.setEnabled(True)
+            self.ui.pushButtonRecord.setEnabled(False)
+            self.ui.pushButtonAbort.setEnabled(False)
+
+        if mode == 'start-preview':
+            self.ui.pushButtonPreview.setEnabled(True)
+            self.ui.pushButtonPreview.setText('End Preview')
+            self.ui.pushButtonPreview.setChecked(True)
+            self.ui.pushButtonPrime.setEnabled(False)
+            self.ui.pushButtonRecord.setEnabled(False)
+            self.ui.pushButtonAbort.setEnabled(False)
+
+        if mode == 'end-preview':
+            self.ui.pushButtonPreview.setEnabled(True)
+            self.ui.pushButtonPreview.setText('Preview')
+            self.ui.pushButtonPreview.setChecked(False)
+            self.ui.pushButtonPrime.setEnabled(True)
+            self.ui.pushButtonRecord.setEnabled(False)
+            self.ui.pushButtonAbort.setEnabled(False)
+
+        if mode == 'primed':
+            self.ui.pushButtonPreview.setEnabled(False)
+            self.ui.pushButtonPrime.setEnabled(True)
+            self.ui.pushButtonPrime.setText('De-Prime')
+            self.ui.pushButtonPrime.setChecked(True)
+            self.ui.pushButtonRecord.setEnabled(True)
+            self.ui.pushButtonAbort.setEnabled(False)
+
+        if mode == 'de-prime':
+            self.ui.pushButtonPreview.setEnabled(False)
+            self.ui.pushButtonPrime.setEnabled(True)
+            self.ui.pushButtonPrime.setText('Prime')
+            self.ui.pushButtonPrime.setChecked(False)
+            self.ui.pushButtonRecord.setEnabled(False)
+            self.ui.pushButtonAbort.setEnabled(False)
+
+        if mode == 'record':
+            self.ui.pushButtonPreview.setEnabled(False)
+            self.ui.pushButtonPrime.setEnabled(False)
+            self.ui.pushButtonRecord.setEnabled(False)
+            self.ui.pushButtonAbort.setEnabled(True)
+
+        if mode == 'record-finished':
+            self.ui.pushButtonPreview.setEnabled(True)
+            self.ui.pushButtonPrime.setEnabled(True)
+            self.ui.pushButtonRecord.setEnabled(False)
+            self.ui.pushButtonAbort.setEnabled(False)
+
+            if self.ui.checkBoxNumericalSuffix.isChecked():
+                self.ui.spinBoxNumericalSuffix.setValue(
+                    self.ui.spinBoxNumericalSuffix.value() + 1
+                )
+
+    def connect_arduino(self):
+        pass
+
+    @present_exceptions('Camera Config Error', 'Error setting camera configuration')
+    def get_camera_configs(self, *args, **kwargs) -> List[CameraConfig]:
+        camera_configs = []
+        for ix in self.ui.listWidgetCameraGUID.count():
+            guid = self.ui.listWidgetCameraGUID.item(ix).text()
+            name = self.ui.listWidgetCameraName.item(ix).text()
+            trigger_line = self.ui.listWidgetTriggerLine.item(ix).text()
+
+            if name == '':
+                raise KeyError(
+                    f'`Camera Name` not defined for camera with GUID:\n{guid}\n\n'
+                    f'Please enter a camera name for all cameras.'
+                )
+
+            if trigger_line == '':
+                raise KeyError(
+                    f'`Trigger Line` not defined for camera with GUID:\n{guid}\n\n'
+                    f'Please enter the numerical trigger line for all cameras.'
+                )
+
+            try:
+                trigger_line = int(trigger_line)
+            except TypeError:
+                raise TypeError(
+                    f'`Trigger Line` for camera with the following GUID must be an integer number:\n{guid}\n\n'
+                    f'Please enter a numerical trigger line for all cameras. You have entered:\n{trigger_line}'
+                )
+
+            camera_configs.append(
+                CameraConfig(name=name, guid=guid, trigger_line=trigger_line)
+            )
+
+        return camera_configs
+
+    @present_exceptions('Parameters error', 'Error validating parameters')
+    def get_params(self):
+        self.params = Params(
+            arduino_address=self.ui.lineEditArduinoAddress.text(),
+            camera_configs=self.get_camera_configs(),
+            duration=self.ui.spinBoxDuration.value(),
+            video_format=self.ui.comboBoxVideoFormat.currentText(),
+            framerate=self.ui.spinBoxFramerate.value(),
+            width=self.ui.spinBoxWidth.value(),
+            height=self.ui.spinBoxHeight.value(),
+            parent_dir=self.ui.lineEditParentDir.value(),
+            auto_create_subdirs=self.ui.checkBoxNumericalSuffix.isChecked(),
+            auto_create_subdirs_index=self.ui.spinBoxNumericalSuffix(),
+            video_subdir=self.ui.lineEditVideoSubDir.text()
+
+        )
+
+    def prime(self):
+        pass
+
     def record(self):
         pass
 
     def abort(self):
         pass
 
-    def preview(self):
+    def start_preview(self):
+        pass
+
+    def end_preview(self):
         pass
 
     def highlight_preview(self):
