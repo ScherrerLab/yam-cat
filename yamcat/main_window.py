@@ -1,6 +1,5 @@
 from PyQt5 import QtWidgets, QtGui, QtCore
 from .mainwindow_pytemplate import Ui_MainWindow
-import yaml
 from pathlib import Path
 from typing import *
 from functools import wraps
@@ -8,6 +7,16 @@ import traceback
 from logging import getLogger
 from .utils import *
 from .params import CameraConfig, Params
+from .core import Operator
+
+
+MODE_ARDUINO_CONNECTED = 'MODE_ARDUINO_CONNECTED'
+MODE_START_PREVIEW = 'MODE_START_PREVIEW'
+MODE_END_PREVIEW = 'MODE_END_PREVIEW'
+MODE_PRIMED = 'MODE_PRIMED'
+MODE_DE_PRIME = 'MODE_DE_PRIME'
+MODE_RECORD = 'MODE_RECORD'
+MODE_RECORD_FINISHED = 'MODE_RECORD_FINISHED'
 
 
 # from mesmerize qdialogs
@@ -72,6 +81,7 @@ def unpack_args(params: dict):
 class MainWindow(QtWidgets.QMainWindow):
     def __init__(self):
         QtWidgets.QMainWindow.__init__(self)
+        self.operator = Operator()
 
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
@@ -85,17 +95,14 @@ class MainWindow(QtWidgets.QMainWindow):
         self.ui.listWidgetCameraGUID.itemClicked.connect(self.highlight_preview)
         self.ui.listWidgetTriggerLine.itemClicked.connect(self.highlight_preview)
 
-        self.camera_guids: List[str] = None
-        self.params: Params = None
+        self.ui.lineEditArduinoAddress.setText(get_default_config()['arduino-address'])
 
     def scan_cameras(self):
-        self.camera_guids = get_basler_camera_guids()
-
         self.ui.listWidgetCameraGUID.clear()
         self.ui.listWidgetTriggerLine.clear()
         self.ui.listWidgetCameraName.clear()
 
-        self.ui.listWidgetCameraGUID.addItems(self.camera_guids)
+        self.ui.listWidgetCameraGUID.addItems(self.operator.camera_guids)
 
         # Use the config yaml to set default trigger lines for the cameras using their GUIDs
         for cg in self.camera_guids:
@@ -121,27 +128,14 @@ class MainWindow(QtWidgets.QMainWindow):
     def help_filenames(self):
         pass
 
-    def get_savedir(self) -> Path:
-        parent_dir = self.ui.lineEditParentDir.text()
-        subdir = self.ui.lineEditVideoSubDir.text()
-
-        if self.ui.checkBoxNumericalSuffix.isChecked():
-            suffix = self.ui.spinBoxNumericalSuffix
-        else:
-            suffix = ''
-
-        savedir = Path(parent_dir).join(f'{subdir}-{suffix}')
-
-        return savedir
-
     def set_ui_mode(self, mode: str):
-        if mode == 'arduino-connected':
+        if mode == MODE_ARDUINO_CONNECTED:
             self.ui.pushButtonPreview.setEnabled(True)
             self.ui.pushButtonPrime.setEnabled(True)
             self.ui.pushButtonRecord.setEnabled(False)
             self.ui.pushButtonAbort.setEnabled(False)
 
-        if mode == 'start-preview':
+        if mode == MODE_START_PREVIEW:
             self.ui.pushButtonPreview.setEnabled(True)
             self.ui.pushButtonPreview.setText('End Preview')
             self.ui.pushButtonPreview.setChecked(True)
@@ -149,7 +143,7 @@ class MainWindow(QtWidgets.QMainWindow):
             self.ui.pushButtonRecord.setEnabled(False)
             self.ui.pushButtonAbort.setEnabled(False)
 
-        if mode == 'end-preview':
+        if mode == MODE_END_PREVIEW:
             self.ui.pushButtonPreview.setEnabled(True)
             self.ui.pushButtonPreview.setText('Preview')
             self.ui.pushButtonPreview.setChecked(False)
@@ -157,7 +151,7 @@ class MainWindow(QtWidgets.QMainWindow):
             self.ui.pushButtonRecord.setEnabled(False)
             self.ui.pushButtonAbort.setEnabled(False)
 
-        if mode == 'primed':
+        if mode == MODE_PRIMED:
             self.ui.pushButtonPreview.setEnabled(False)
             self.ui.pushButtonPrime.setEnabled(True)
             self.ui.pushButtonPrime.setText('De-Prime')
@@ -165,7 +159,7 @@ class MainWindow(QtWidgets.QMainWindow):
             self.ui.pushButtonRecord.setEnabled(True)
             self.ui.pushButtonAbort.setEnabled(False)
 
-        if mode == 'de-prime':
+        if mode == MODE_DE_PRIME:
             self.ui.pushButtonPreview.setEnabled(False)
             self.ui.pushButtonPrime.setEnabled(True)
             self.ui.pushButtonPrime.setText('Prime')
@@ -173,13 +167,13 @@ class MainWindow(QtWidgets.QMainWindow):
             self.ui.pushButtonRecord.setEnabled(False)
             self.ui.pushButtonAbort.setEnabled(False)
 
-        if mode == 'record':
+        if mode == MODE_RECORD:
             self.ui.pushButtonPreview.setEnabled(False)
             self.ui.pushButtonPrime.setEnabled(False)
             self.ui.pushButtonRecord.setEnabled(False)
             self.ui.pushButtonAbort.setEnabled(True)
 
-        if mode == 'record-finished':
+        if mode == MODE_RECORD_FINISHED:
             self.ui.pushButtonPreview.setEnabled(True)
             self.ui.pushButtonPrime.setEnabled(True)
             self.ui.pushButtonRecord.setEnabled(False)
@@ -191,7 +185,12 @@ class MainWindow(QtWidgets.QMainWindow):
                 )
 
     def connect_arduino(self):
-        pass
+        self.operator.params = self.get_params()
+        self.operator.connect_arduino(
+            self.operator.params.arduino_address
+        )
+
+        self.set_ui_mode(MODE_ARDUINO_CONNECTED)
 
     @present_exceptions('Camera Config Error', 'Error setting camera configuration')
     def get_camera_configs(self, *args, **kwargs) -> List[CameraConfig]:
@@ -228,8 +227,8 @@ class MainWindow(QtWidgets.QMainWindow):
         return camera_configs
 
     @present_exceptions('Parameters error', 'Error validating parameters')
-    def get_params(self):
-        self.params = Params(
+    def get_params(self, *args, **kwargs):
+        params = Params(
             arduino_address=self.ui.lineEditArduinoAddress.text(),
             camera_configs=self.get_camera_configs(),
             duration=self.ui.spinBoxDuration.value(),
@@ -241,17 +240,26 @@ class MainWindow(QtWidgets.QMainWindow):
             auto_create_subdirs=self.ui.checkBoxNumericalSuffix.isChecked(),
             auto_create_subdirs_index=self.ui.spinBoxNumericalSuffix(),
             video_subdir=self.ui.lineEditVideoSubDir.text()
-
         )
 
+        return params
+
     def prime(self):
-        pass
+        self.operator.params = self.get_params()
+        self.operator.prime()
+        self.set_ui_mode(MODE_PRIMED)
 
     def record(self):
-        pass
+        self.operator.record()
+        self.set_ui_mode(MODE_RECORD)
+
+    def record_finished(self):
+        self.set_ui_mode(MODE_RECORD_FINISHED)
 
     def abort(self):
-        pass
+        self.operator.abort_record()
+        self.set_ui_mode(MODE_DE_PRIME)
+        self.set_ui_mode(MODE_ARDUINO_CONNECTED)
 
     def start_preview(self):
         pass

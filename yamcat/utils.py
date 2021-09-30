@@ -21,3 +21,7 @@ def get_basler_camera_guids() -> List[str]:
 
 def get_default_config() -> dict:
     return yaml.load(Path(__file__).parent.joinpath('config.yaml'))
+
+
+def get_acquire_subprocess_path() -> str:
+    return f'{Path(__file__).parent.joinpath("acquire_subprocess.py")}'

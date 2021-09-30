@@ -8,13 +8,13 @@
 # Example:
 # 2676016BC31A: 4
 
-camera_guids:
+camera-guids:
   2676016BC31A: 4
   267601CA59E7: 2
 
 
 # *** Video Formats *** #
-# You may edit this to enable differnt video formats in the GUI
+# You may edit this to enable different video formats in the GUI
 
 # Format:
 # fourcc: container
@@ -27,3 +27,7 @@ camera_guids:
 # mp4v: avi
 
 mp4v: avi
+
+# Default Arduino pin for hardware trigger signal
+arduino-pin: 9
+arduino-address: /dev/ttyACM1
