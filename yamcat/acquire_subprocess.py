@@ -67,8 +67,6 @@ def main(
     writer = Writer(camera_name, queue, video_output_path, fourcc, dims)
     writer.start()
 
-    camera_name = camera_name
-
     logger.info(f'Connecting to camera: {camera_name}')
 
     tlFactory = pylon.TlFactory.GetInstance()
@@ -85,8 +83,6 @@ def main(
     # TODO: Have a way to choose the camera!!!
     camera = pylon.InstantCamera(pylon.TlFactory.GetInstance().CreateDevice(device))
     camera.Open()
-
-    trigger_line = trigger_line
 
     camera.Width.SetValue(dims[0])
     camera.Height.SetValue(dims[1])

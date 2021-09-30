@@ -72,8 +72,6 @@ class Writer(Process):
         self.camera_name = camera_name
         self.output_path = str(output_path)
 
-        fps = int(50)
-
         self.fourcc = cv2.VideoWriter_fourcc(*"mp4v")
         self.video_writer = cv2.VideoWriter(
             output_path,
