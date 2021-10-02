@@ -95,7 +95,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.ui.listWidgetCameraGUID.itemClicked.connect(self.highlight_preview)
         self.ui.listWidgetTriggerLine.itemClicked.connect(self.highlight_preview)
 
-        self.ui.lineEditArduinoAddress.setText(get_default_config()['arduino-address'])
+        self.ui.lineEditArduinoAddress.setText(get_default_config()['arduino']['address'])
 
     def scan_cameras(self):
         self.ui.listWidgetCameraGUID.clear()

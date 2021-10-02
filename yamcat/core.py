@@ -10,7 +10,7 @@ import time
 import logging
 from pypylon import pylon
 from .params import Params, CameraConfig
-from utils import get_basler_camera_guids, get_acquire_subprocess_path, get_default_config
+from .utils import get_basler_camera_guids, get_acquire_subprocess_path, get_default_config
 import threading
 
 logger = logging.getLogger()
@@ -26,12 +26,13 @@ class ArduinoTrigger(Process):
 
         logger.info(f'Connecting to Arduino at: {address}, pin#: {pin}')
         self.board = Arduino(address)
-        self.pin = pin
+        self.pin = int(pin)
 
         self.board.digital[self.pin].write(0)
         # self.reset_pin()
 
         self.fps: int = None
+        logger.info(f'Yay Arduino is connected!')
 
     def set_fps(self, fps):
         self.fps = fps
@@ -39,7 +40,8 @@ class ArduinoTrigger(Process):
         # because square wave pulses
         # high for first half, low for second half
         self.delay = (1 / fps) / 2
-        logger.info(f'Arduino is ready')
+
+        logger.info(f'Arduino trigger is set to: {fps}Hz')
 
     def run(self) -> None:
         logger.info(f'Started trigger')
@@ -65,18 +67,19 @@ class Writer(Process):
             output_path: Union[Path, str],
             fps: int,
             fourcc: str = 'mp4v',
-            dims: Tuple[int, int] = (1024, 1024)
+            dims: Tuple[int] = (1024, 1024)
     ):
         super().__init__()
         self.queue = queue
         self.camera_name = camera_name
         self.output_path = str(output_path)
 
-        self.fourcc = cv2.VideoWriter_fourcc(*"mp4v")
+        self.fourcc = cv2.VideoWriter_fourcc(*fourcc)
+
         self.video_writer = cv2.VideoWriter(
             output_path,
             self.fourcc,
-            fps,
+            int(fps),
             dims,
             isColor=True
         )
@@ -93,10 +96,42 @@ class Writer(Process):
             self.video_writer.write(frame)
 
 
+    # @staticmethod
+    # def popenAndCall(onExit, cmd):
+    #     """
+    #     From:
+    #     https://stackoverflow.com/questions/2581817/python-subprocess-callback-when-cmd-exits
+    #
+    #     Runs a subprocess.Popen, and then calls the function onExit when the
+    #     subprocess completes.
+    #
+    #     Use it exactly the way you'd normally use subprocess.Popen, except include a
+    #     callable to execute as the first argument. onExit is a callable object, and
+    #     *popenArgs and **popenKWArgs are simply passed up to subprocess.Popen.
+    #     """
+class POpenThread:
+    def __init__(self):
+        self.proc = None
+
+    def runInThread(self, callback, cmd):
+        self.proc = subprocess.Popen(cmd, env=os.environ.copy())
+        self.proc.wait()
+        callback()
+        return
+
+    def start(self, callback, cmd):
+        # popen_thread = POpenThread()
+
+        thread = threading.Thread(target=self.runInThread,
+                                  args=(callback, cmd))
+        thread.start()
+
+        return self.proc
+
+
 class Operator:
     def __init__(self):
         self.arduino_trigger: ArduinoTrigger = None
-        self.arduino_address: str = None
 
         self.tl_factory: pylon.TlFactory = pylon.TlFactory.GetInstance()
         self.camera_guids: List[str] = get_basler_camera_guids()
@@ -110,37 +145,12 @@ class Operator:
         self.parent_ui = None
 
     def connect_arduino(self, addr: str):
-        pin = get_default_config()['arduino_pin']
+        pin = get_default_config()['arduino']['pin']
         self.arduino_trigger = ArduinoTrigger(address=addr, pin=pin)
 
-    def popenAndCall(self, onExit, *popenArgs, **popenKWArgs):
-        """
-        From:
-        https://stackoverflow.com/questions/2581817/python-subprocess-callback-when-cmd-exits
-
-        Runs a subprocess.Popen, and then calls the function onExit when the
-        subprocess completes.
-
-        Use it exactly the way you'd normally use subprocess.Popen, except include a
-        callable to execute as the first argument. onExit is a callable object, and
-        *popenArgs and **popenKWArgs are simply passed up to subprocess.Popen.
-        """
-        class POpenThread:
-            def runInThread(thread, onExit, popenArgs, popenKWArgs):
-                thread.proc = subprocess.Popen(*popenArgs, **popenKWArgs)
-                thread.proc.wait()
-                onExit()
-                return
-
-        popen_thread = POpenThread()
-
-        thread = threading.Thread(target=popen_thread.runInThread,
-                                  args=(onExit, popenArgs, popenKWArgs))
-        thread.start()
-
-        return popen_thread.proc
-
     def prime(self):
+        os.makedirs(self.params.destination_dir, exist_ok=True)
+
         for guid in self.camera_guids:
             params_dict = self.params.to_dict(device_guid=guid)
             name = params_dict['camera-name']
@@ -155,7 +165,10 @@ class Operator:
             #     ['python', get_acquire_subprocess_path()] + args, env=os.environ.copy()
             # )
 
-            self.acquire_subprocesses[guid] = self.popenAndCall()
+            self.acquire_subprocesses[guid] = POpenThread().start(
+                callback=self.record_finished,
+                cmd=['python', get_acquire_subprocess_path()] + args
+            )
 
         time.sleep(3)
 
@@ -175,6 +188,7 @@ class Operator:
         self.record_finished_counter = 0
 
     def record_finished(self):
+        print(f"Recording finished, {self.record_finished_counter}")
         self.record_finished_counter += 1
         if self.record_finished_counter == len(self.acquire_subprocesses.keys()):
             self.record_finished_all()
@@ -195,4 +209,4 @@ class Operator:
         self.arduino_trigger.close()
 
         time.sleep(3)
-        self.connect_arduino(self.arduino_address)
+        self.connect_arduino(self.params.arduino_address)

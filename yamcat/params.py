@@ -6,7 +6,7 @@ from .utils import get_default_config
 
 class CameraConfig():
     def __init__(self, guid: str, trigger_line: int, name: str = None):
-        self.name: str = None
+        self.name: str = name
         self.guid: str = guid
         self.trigger_line: int = trigger_line
 
@@ -26,7 +26,7 @@ class Params():
             auto_create_subdirs_index: int,
             video_subdir: str
     ):
-        if not os.path.isfile(arduino_address):
+        if not os.path.exists(arduino_address):
             raise FileNotFoundError(f'Arduino address is not valid:\n{arduino_address}')
         else:
             self.arduino_address: str = arduino_address
@@ -35,34 +35,34 @@ class Params():
 
         self.duration: int = duration
         self.video_format: str = video_format
-        self.framerate: int = framerate
+        self.framerate: int = int(framerate)
         self.width: int = width
         self.height: int = height
 
-        if not os.access(parent_dir, os.W_OK):
-            raise PermissionError(
-                f'You do not have permission to write to the specified parent directory:\n{parent_dir}'
-            )
+        # if not os.access(parent_dir, os.):
+        #     raise PermissionError(
+        #         f'You do not have permission to write to the specified parent directory:\n{parent_dir}'
+        #     )
+        #
+        # else:
+        if not os.path.isdir(parent_dir):
+            os.makedirs(parent_dir, exist_ok=True)
 
-        else:
-            if not os.path.isdir(parent_dir):
-                os.makedirs(parent_dir, exist_ok=True)
-
-            self.parent_dir: str = parent_dir
+        self.parent_dir: str = parent_dir
 
         self.auto_create_subdirs: bool = auto_create_subdirs
-        if auto_create_subdirs_index:
-            self.auto_create_subdirs_index: str = '-' + str(auto_create_subdirs)
+        if auto_create_subdirs:
+            subdir_suffix: str = '-' + str(auto_create_subdirs_index)
         else:
-            self.auto_create_subdirs_index: str = ''
+            subdir_suffix: str = ''
 
         self.video_subdir: str = video_subdir
 
         self.destination_dir: Path = Path(
-            os.path.join(self.parent_dir, f'{video_subdir}{self.auto_create_subdirs_index}')
+            os.path.join(self.parent_dir, f'{video_subdir}{subdir_suffix}')
         )
 
-        self.video_extension = get_default_config()[self.video_format]
+        self.video_extension = get_default_config()['video-formats'][self.video_format]
 
     def get_camera_config(self, name: str = None, guid: str = None):
         if (name == None) and (guid == None):
@@ -75,7 +75,7 @@ class Params():
             attr = 'name'
 
         for camera_config in self.camera_configs:
-            if getattr(self.camera_configs, attr) == locals()[attr]:
+            if getattr(camera_config, attr) == locals()[attr]:
                 return camera_config
 
         return KeyError('Camera config not found with given information')
@@ -101,6 +101,8 @@ class Params():
                 'fourcc': self.video_format,
                 'dims': f'{self.width},{self.height}'
             }
+
+        return d
 
     def to_args(self, params_dict: dict) -> List[str]:
         """

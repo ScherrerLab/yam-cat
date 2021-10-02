@@ -18,16 +18,16 @@ camera-guids:
 
 # Format:
 # fourcc: container
+  # Description:
+  # fourcc:
+    # used by OpenCV VideoWriter
+  # container:
+    # file extension
 
-# Description:
-# fourcc: used by OpenCV VideoWriter
-# container: file extension
+video-formats:
+  mp4v: avi
 
-# Example:
-# mp4v: avi
-
-mp4v: avi
-
-# Default Arduino pin for hardware trigger signal
-arduino-pin: 9
-arduino-address: /dev/ttyACM1
+# Default Arduino hardware settings
+arduino:
+  address: /dev/ttyACM0
+  pin: 8

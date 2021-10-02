@@ -4,7 +4,7 @@ from pypylon import pylon
 import logging
 from datetime import datetime
 import click
-from core import Writer
+from yamcat.core import Writer
 from pprint import pprint
 from time import sleep
 
@@ -64,7 +64,14 @@ def main(
 
     dims = tuple(map(int, dims.split(',')))
 
-    writer = Writer(camera_name, queue, video_output_path, fourcc, dims)
+    writer = Writer(
+        camera_name=camera_name,
+        queue=queue,
+        output_path=video_output_path,
+        fps=fps,
+        fourcc=fourcc,
+        dims=dims
+    )
     writer.start()
 
     logger.info(f'Connecting to camera: {camera_name}')
@@ -123,6 +130,8 @@ def main(
         queue.put(frame)
 
     queue.put(None)
+
+    camera.Close()
 
     while writer.is_alive():
         print("Waiting for writer to finish...")
