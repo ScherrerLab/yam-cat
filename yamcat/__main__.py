@@ -1,6 +1,5 @@
 import sys
-from core import ArduinoTrigger, Writer
-from multiprocessing import Queue
+from core import ArduinoTrigger
 import logging
 from datetime import datetime
 from pypylon import pylon
@@ -53,7 +52,8 @@ def unpack_args(params: dict):
 
 
 if __name__ == '__main__':
-    arduino_trigger = ArduinoTrigger(address='/dev/ttyACM1', pin=9, fps=50)
+    arduino_trigger = ArduinoTrigger(address='/dev/ttyACM0', pin=9)
+    arduino_trigger.set_fps(50)
 
     tlFactory = pylon.TlFactory.GetInstance()
     devices = tlFactory.EnumerateDevices()

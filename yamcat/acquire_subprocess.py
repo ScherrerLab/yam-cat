@@ -101,10 +101,12 @@ def main(
 
     camera.TriggerSelector.SetValue('FrameStart')
     camera.TriggerMode.SetValue('On')
-    camera.TriggerActivation.SetValue('RisingEdge')
+
     trigger_source = f'Line{trigger_line}'
     logging.info(trigger_source)
     camera.TriggerSource.SetValue(trigger_source)
+
+    camera.TriggerActivation.SetValue('RisingEdge')
 
     converter = pylon.ImageFormatConverter()
 

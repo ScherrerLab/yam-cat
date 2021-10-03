@@ -1,13 +1,13 @@
 from PyQt5 import QtWidgets, QtGui, QtCore
-from .mainwindow_pytemplate import Ui_MainWindow
+from mainwindow_pytemplate import Ui_MainWindow
 from pathlib import Path
 from typing import *
 from functools import wraps
 import traceback
 from logging import getLogger
-from .utils import *
-from .params import CameraConfig, Params
-from .core import Operator
+from utils import *
+from params import CameraConfig, Params
+from core import Operator
 
 
 MODE_ARDUINO_CONNECTED = 'MODE_ARDUINO_CONNECTED'
@@ -105,22 +105,22 @@ class MainWindow(QtWidgets.QMainWindow):
         self.ui.listWidgetCameraGUID.addItems(self.operator.camera_guids)
 
         # Use the config yaml to set default trigger lines for the cameras using their GUIDs
-        for cg in self.camera_guids:
-            self.ui.listWidgetTriggerLine.addItems(get_default_config()['camera_guids'][cg])
+        for cg in self.operator.camera_guids:
+            self.ui.listWidgetTriggerLine.addItem(str(get_default_config()['camera-guids'][cg]))
 
-        # populate camera name list widget
-        for i in range(len(self.camera_guids)):
-            self.ui.listWidgetCameraGUID.addItem(str(i))
+        # populate camera name and GUID list widget
+        for i in range(len(self.operator.camera_guids)):
+            self.ui.listWidgetCameraName.addItem('')
 
-        # make them editable
-        for item in self.ui.listWidgetCameraName.items():
-            item.setFlags(item.flags() | QtCore.Qt.ItemIsEditable)
-
-        for item in self.ui.listWidgetCameraGUID.items():
-            item.setFlags(item.flags() | QtCore.Qt.ItemIsEditable)
-
-        for item in self.ui.listWidgetTriggerLine.items():
-            item.item.setFlags(item.flags() | QtCore.Qt.ItemIsEditable)
+        # TODO: make them editable
+        # for item in self.ui.listWidgetCameraName.items():
+        #     item.setFlags(item.flags() | QtCore.Qt.ItemIsEditable)
+        #
+        # for item in self.ui.listWidgetCameraGUID.items():
+        #     item.setFlags(item.flags() | QtCore.Qt.ItemIsEditable)
+        #
+        # for item in self.ui.listWidgetTriggerLine.items():
+        #     item.item.setFlags(item.flags() | QtCore.Qt.ItemIsEditable)
 
     def camera_config_changed(self):
         pass
@@ -269,3 +269,12 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def highlight_preview(self):
         pass
+
+
+if __name__ == '__main__':
+    app = QtWidgets.QApplication([])
+
+    mw = MainWindow()
+    mw.show()
+
+    app.exec()

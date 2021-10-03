@@ -1,7 +1,7 @@
 from typing import *
 from pathlib import Path
 import os
-from .utils import get_default_config
+from utils import get_default_config
 
 
 class CameraConfig():
