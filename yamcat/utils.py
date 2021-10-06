@@ -19,6 +19,15 @@ def get_basler_camera_guids() -> List[str]:
     return guids
 
 
+def get_basler_camera_serial_numbers() -> List[int]:
+    tlFactory = pylon.TlFactory.GetInstance()
+    devices = tlFactory.EnumerateDevices()
+
+    serial_numbers = [int(dev.GetSerialNumber()) for dev in devices]
+
+    return serial_numbers
+
+
 def get_default_config() -> dict:
     return yaml.safe_load(
         open(Path(__file__).parent.joinpath('config.yaml'), 'r')
