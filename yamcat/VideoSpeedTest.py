@@ -7,6 +7,7 @@ is used by the view widget
 """
 
 ## Add path to library (just for examples; you do not need this)
+
 import argparse
 import sys
 
@@ -15,13 +16,11 @@ import numpy as np
 import pyqtgraph as pg
 from pyqtgraph.Qt import QtGui, QtCore, QT_LIB
 from time import perf_counter
-import threading
-import queue
-import cv2
-from pypylon import pylon
+
 
 pg.setConfigOption('imageAxisOrder', 'row-major')
 
+import importlib
 import VideoTemplate_pytemplate as ui_template
 
 try:
@@ -122,32 +121,166 @@ vb.addItem(img)
 
 
 
+LUT = None
+def updateLUT():
+    global LUT, ui
+    dtype = ui.dtypeCombo.currentText()
+    if dtype == 'uint8':
+        n = 256
+    else:
+        n = 4096
+    LUT = ui.gradient.getLookupTable(n, alpha=ui.alphaCheck.isChecked())
+    if _has_cupy and xp == cp:
+        LUT = cp.asarray(LUT)
+ui.gradient.sigGradientChanged.connect(updateLUT)
+updateLUT()
+
+ui.alphaCheck.toggled.connect(updateLUT)
+
+def updateScale():
+    global ui, levelSpins
+    if ui.rgbLevelsCheck.isChecked():
+        for s in levelSpins[2:]:
+            s.setEnabled(True)
+    else:
+        for s in levelSpins[2:]:
+            s.setEnabled(False)
+
+updateScale()
+
+ui.rgbLevelsCheck.toggled.connect(updateScale)
+
+cache = {}
+def mkData():
+    with pg.BusyCursor():
+        global data, cache, ui, xp
+        frames = ui.framesSpin.value()
+        width = ui.widthSpin.value()
+        height = ui.heightSpin.value()
+        cacheKey = (ui.dtypeCombo.currentText(), ui.rgbCheck.isChecked(), frames, width, height)
+        if cacheKey not in cache:
+            if cacheKey[0] == 'uint8':
+                dt = xp.uint8
+                loc = 128
+                scale = 64
+                mx = 255
+            elif cacheKey[0] == 'uint16':
+                dt = xp.uint16
+                loc = 4096
+                scale = 1024
+                mx = 2**16 - 1
+            elif cacheKey[0] == 'float':
+                dt = xp.float32
+                loc = 1.0
+                scale = 0.1
+                mx = 1.0
+            else:
+                raise ValueError(f"unable to handle dtype: {cacheKey[0]}")
+
+            chan_shape = (height, width)
+            if ui.rgbCheck.isChecked():
+                frame_shape = chan_shape + (3,)
+            else:
+                frame_shape = chan_shape
+            data = xp.empty((frames,) + frame_shape, dtype=dt)
+            view = data.reshape((-1,) + chan_shape)
+            for idx in range(view.shape[0]):
+                subdata = xp.random.normal(loc=loc, scale=scale, size=chan_shape)
+                # note: gaussian filtering has been removed as it slows down array
+                #       creation greatly.
+                if cacheKey[0] != 'float':
+                    xp.clip(subdata, 0, mx, out=subdata)
+                view[idx] = subdata
+
+            data[:, 10:50, 10] = mx
+            data[:, 48, 9:12] = mx
+            data[:, 47, 8:13] = mx
+            cache = {cacheKey: data} # clear to save memory (but keep one to prevent unnecessary regeneration)
+
+        data = cache[cacheKey]
+        updateLUT()
+        updateSize()
+
+def updateSize():
+    global ui, vb
+    frames = ui.framesSpin.value()
+    width = ui.widthSpin.value()
+    height = ui.heightSpin.value()
+    dtype = xp.dtype(str(ui.dtypeCombo.currentText()))
+    rgb = 3 if ui.rgbCheck.isChecked() else 1
+    ui.sizeLabel.setText('%d MB' % (frames * width * height * rgb * dtype.itemsize / 1e6))
+    vb.setRange(QtCore.QRectF(0, 0, width, height))
+
+
+def noticeCudaCheck():
+    global xp, cache
+    cache = {}
+    if ui.cudaCheck.isChecked():
+        if _has_cupy:
+            xp = cp
+        else:
+            xp = np
+            ui.cudaCheck.setChecked(False)
+    else:
+        xp = np
+    mkData()
+
+
 def noticeNumbaCheck():
     pg.setConfigOption('useNumba', _has_numba and ui.numbaCheck.isChecked())
 
+
+mkData()
+
+
+ui.dtypeCombo.currentIndexChanged.connect(mkData)
+ui.rgbCheck.toggled.connect(mkData)
+ui.widthSpin.editingFinished.connect(mkData)
+ui.heightSpin.editingFinished.connect(mkData)
+ui.framesSpin.editingFinished.connect(mkData)
+
+ui.widthSpin.valueChanged.connect(updateSize)
+ui.heightSpin.valueChanged.connect(updateSize)
+ui.framesSpin.valueChanged.connect(updateSize)
+ui.cudaCheck.toggled.connect(noticeCudaCheck)
 ui.numbaCheck.toggled.connect(noticeNumbaCheck)
 
 
 ptr = 0
 lastTime = perf_counter()
 fps = None
-
 def update():
     global ui, ptr, lastTime, fps, LUT, img
+    if ui.lutCheck.isChecked():
+        useLut = LUT
+    else:
+        useLut = None
 
-    grabResult = camera.RetrieveResult(5000, pylon.TimeoutHandling_ThrowException)
-    if not grabResult.GrabSucceeded():
-        print("Couldn't grab frame :(")
-        print(grabResult.ErrorDescription)
-        return
+    downsample = ui.downsampleCheck.isChecked()
 
-    # Access the image data
-    image = converter.Convert(grabResult)
-    gray = image.GetArray()
+    if ui.scaleCheck.isChecked():
+        if ui.rgbLevelsCheck.isChecked():
+            useScale = [
+                [ui.minSpin1.value(), ui.maxSpin1.value()],
+                [ui.minSpin2.value(), ui.maxSpin2.value()],
+                [ui.minSpin3.value(), ui.maxSpin3.value()]]
+        else:
+            useScale = [ui.minSpin1.value(), ui.maxSpin1.value()]
+    else:
+        useScale = None
 
-    img.setImage(gray)
-    ui.stack.setCurrentIndex(0)
+    if ui.rawRadio.isChecked():
+        ui.rawImg.setImage(data[ptr%data.shape[0]], lut=useLut, levels=useScale)
+        ui.stack.setCurrentIndex(1)
+    elif ui.rawGLRadio.isChecked():
+        ui.rawGLImg.setImage(data[ptr%data.shape[0]], lut=useLut, levels=useScale)
+        ui.stack.setCurrentIndex(2)
+    else:
+        img.setImage(data[ptr%data.shape[0]], autoLevels=False, levels=useScale, lut=useLut, autoDownsample=downsample)
+        ui.stack.setCurrentIndex(0)
+        #img.setImage(data[ptr%data.shape[0]], autoRange=False)
 
+    ptr += 1
     now = perf_counter()
     dt = now - lastTime
     lastTime = now
@@ -158,7 +291,6 @@ def update():
         fps = fps * (1-s) + (1.0/dt) * s
     ui.fpsLabel.setText('%0.2f fps' % fps)
     app.processEvents()  ## force complete redraw for every plot
-
 timer = QtCore.QTimer()
 timer.timeout.connect(update)
 timer.start(0)

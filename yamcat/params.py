@@ -5,10 +5,19 @@ from utils import get_default_config
 
 
 class CameraConfig():
-    def __init__(self, guid: str, trigger_line: int, name: str = None):
+    def __init__(
+            self,
+            guid: str,
+            trigger_line: int,
+            name: str,
+            preview_position: tuple,
+            preview_size: tuple
+    ):
         self.name: str = name
         self.guid: str = guid
         self.trigger_line: int = trigger_line
+        self.preview_position = tuple(map(int, preview_position))
+        self.preview_size = tuple(map(int, preview_size))
 
 
 class Params():
@@ -95,6 +104,8 @@ class Params():
                 'device-guid': device_guid,
                 'camera-name': camera_config.name,
                 'trigger-line': camera_config.trigger_line,
+                'preview-position': f'{camera_config.preview_position[0]},{camera_config.preview_position[1]}',
+                'preview-size': f'{camera_config.preview_size[0]},{camera_config.preview_size[1]}',
                 'fps': self.framerate,
                 'duration': self.duration,
                 'video-output-path': self.destination_dir.joinpath(f'{camera_config.name}.{self.video_extension}'),

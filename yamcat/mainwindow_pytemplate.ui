@@ -22,7 +22,7 @@
         <property name="title">
          <string>Hardware Params</string>
         </property>
-        <layout class="QVBoxLayout" name="verticalLayout_4">
+        <layout class="QVBoxLayout" name="verticalLayout_7">
          <item>
           <layout class="QHBoxLayout" name="horizontalLayout_3">
            <item>
@@ -271,6 +271,44 @@ You may drag and drop items in this list so that camera names and GUIDs correspo
                <item>
                 <property name="text">
                  <string>6</string>
+                </property>
+               </item>
+              </widget>
+             </item>
+            </layout>
+           </item>
+           <item>
+            <layout class="QVBoxLayout" name="verticalLayout_4">
+             <item>
+              <widget class="QLabel" name="label_5">
+               <property name="text">
+                <string>Preview Position</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QListWidget" name="listWidgetPreviewPos">
+               <property name="dragDropMode">
+                <enum>QAbstractItemView::InternalMove</enum>
+               </property>
+               <item>
+                <property name="text">
+                 <string>top-left</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string>top-right</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string>bottom-left</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string>bottom-right</string>
                 </property>
                </item>
               </widget>
@@ -659,7 +697,7 @@ This may effect your camera names and the order!</string>
      <x>0</x>
      <y>0</y>
      <width>1445</width>
-     <height>30</height>
+     <height>22</height>
     </rect>
    </property>
   </widget>
@@ -678,6 +716,7 @@ This may effect your camera names and the order!</string>
   <tabstop>listWidgetCameraName</tabstop>
   <tabstop>listWidgetCameraGUID</tabstop>
   <tabstop>listWidgetTriggerLine</tabstop>
+  <tabstop>listWidgetPreviewPos</tabstop>
   <tabstop>pushButtonReScanCameras</tabstop>
   <tabstop>spinBoxDuration</tabstop>
   <tabstop>comboBoxVideoFormat</tabstop>

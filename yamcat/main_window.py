@@ -79,6 +79,16 @@ def unpack_args(params: dict):
 
 
 class MainWindow(QtWidgets.QMainWindow):
+    ag = QtWidgets.QDesktopWidget().availableGeometry()
+    preview_size = (ag.width() / 2, ag.height() / 2)
+    preview_positions = \
+        {
+            'top-left': (0, 0),
+            'top-right': (ag.width() / 2, 0),
+            'bottom-left': (0, ag.height() / 2),
+            'bottom-right': (ag.width() / 2, ag.height() / 2)
+        }
+
     def __init__(self):
         QtWidgets.QMainWindow.__init__(self)
         self.operator = Operator()
@@ -97,6 +107,8 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.ui.lineEditArduinoAddress.setText(get_default_config()['arduino']['address'])
 
+        self.ui.comboBoxVideoFormat.addItems(list(get_default_config()['video-formats'].keys()))
+
     def scan_cameras(self):
         self.ui.listWidgetCameraGUID.clear()
         self.ui.listWidgetTriggerLine.clear()
@@ -113,14 +125,12 @@ class MainWindow(QtWidgets.QMainWindow):
             self.ui.listWidgetCameraName.addItem('')
 
         # TODO: make them editable
-        # for item in self.ui.listWidgetCameraName.items():
-        #     item.setFlags(item.flags() | QtCore.Qt.ItemIsEditable)
-        #
-        # for item in self.ui.listWidgetCameraGUID.items():
-        #     item.setFlags(item.flags() | QtCore.Qt.ItemIsEditable)
-        #
-        # for item in self.ui.listWidgetTriggerLine.items():
-        #     item.item.setFlags(item.flags() | QtCore.Qt.ItemIsEditable)
+        for ix in range(len(self.operator.camera_guids)):
+            item_cam_name = self.ui.listWidgetCameraName.item(ix)
+            item_trig_line = self.ui.listWidgetTriggerLine.item(ix)
+
+            item_cam_name.setFlags(item_cam_name.flags() | QtCore.Qt.ItemIsEditable)
+            item_trig_line.setFlags(item_trig_line.flags() | QtCore.Qt.ItemIsEditable)
 
     def camera_config_changed(self):
         pass
@@ -199,6 +209,8 @@ class MainWindow(QtWidgets.QMainWindow):
             guid = self.ui.listWidgetCameraGUID.item(ix).text()
             name = self.ui.listWidgetCameraName.item(ix).text()
             trigger_line = self.ui.listWidgetTriggerLine.item(ix).text()
+            position = self.ui.listWidgetPreviewPos.item(ix).text()
+            position = self.preview_positions[position]
 
             if name == '':
                 raise KeyError(

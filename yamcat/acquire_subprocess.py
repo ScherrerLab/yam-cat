@@ -7,6 +7,7 @@ import click
 from yamcat.core import Writer
 from pprint import pprint
 from time import sleep
+from PyQt5.QtWidgets import QApplication
 
 
 def exception_hook(exc_type, exc_value, traceback):
@@ -22,6 +23,8 @@ def exception_hook(exc_type, exc_value, traceback):
 @click.option('--video-output-path', type=str)
 @click.option('--fourcc', type=str)
 @click.option('--dims', type=str)
+@click.option('--preview-position', type=str)
+@click.option('--preview-size', type=str)
 def main(
         device_guid,
         camera_name,
@@ -30,7 +33,9 @@ def main(
         trigger_line,
         video_output_path,
         fourcc,
-        dims
+        dims,
+        preview_position,
+        preview_size
 ):
     pprint(locals())
     log_level = 'DEBUG'
@@ -63,6 +68,8 @@ def main(
     queue = Queue()
 
     dims = tuple(map(int, dims.split(',')))
+    preview_position = tuple(map(int, preview_position.split(',')))
+    preview_size = tuple(map(int, preview_size.split(',')))
 
     writer = Writer(
         camera_name=camera_name,
@@ -70,7 +77,9 @@ def main(
         output_path=video_output_path,
         fps=fps,
         fourcc=fourcc,
-        dims=dims
+        dims=dims,
+        preview_size=preview_size,
+        preview_position=preview_position
     )
     writer.start()
 
@@ -141,4 +150,8 @@ def main(
     
 
 if __name__ == '__main__':
+    app = QApplication([])
     main()
+
+    app.exec()
+

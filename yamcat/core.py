@@ -12,6 +12,7 @@ from pypylon import pylon
 from params import Params
 from utils import get_basler_camera_guids, get_acquire_subprocess_path, get_default_config
 import threading
+from pyqtgraph import ImageView
 
 logger = logging.getLogger()
 
@@ -54,9 +55,9 @@ class ArduinoTrigger(Process):
     def reset_pin(self):
         self.board.digital[self.pin].write(0)
 
-    def terminate(self) -> None:
-        self.reset_pin()
-        super(ArduinoTrigger, self).kill()
+    # def terminate(self) -> None:
+    #     self.reset_pin()
+    #     super(ArduinoTrigger, self).terminate()
 
 
 class Writer(Process):
@@ -67,7 +68,10 @@ class Writer(Process):
             output_path: Union[Path, str],
             fps: int,
             fourcc: str = 'mp4v',
-            dims: Tuple[int] = (1024, 1024)
+            dims: Tuple[int] = (1024, 1024),
+            preview: bool = True,
+            preview_position: Tuple[int] = None,
+            preview_size: Tuple[int] = None
     ):
         super().__init__()
         self.queue = queue
@@ -85,6 +89,14 @@ class Writer(Process):
         )
         logger.info(f'Writer ready for: {self.camera_name}')
 
+        self.preview = preview
+
+        if self.preview:
+            self.image_view = ImageView()
+            self.image_view.setFixedSize(*preview_size)
+            self.image_view.move(*preview_position)
+            self.image_view.show()
+
     def run(self) -> None:
         while True:
             frame = self.queue.get()
@@ -95,6 +107,38 @@ class Writer(Process):
 
             self.video_writer.write(frame)
 
+            if self.preview:
+                self.image_view.setImage(frame)
+                time.sleep(0.01)
+
+
+class VideoDisplay(Process):
+    def __init__(
+            self,
+            camera_name: str,
+            queue: Queue,
+            position: Tuple[int],
+            size: Tuple[int]
+    ):
+        super().__init__()
+        self.camera_name = camera_name
+        self.queue = queue,
+        self.position = position
+
+        self.image_view = ImageView()
+        self.image_view.setFixedSize(*size)
+        self.image_view.move(*position)
+        self.image_view.show()
+
+    def run(self) -> None:
+        while True:
+            frame = self.queue.get()
+
+            if frame is None:
+                print("VideoDisplay finished")
+                return
+
+            self.image_view.setImage(frame)
 
     # @staticmethod
     # def popenAndCall(onExit, cmd):
@@ -113,7 +157,11 @@ class POpenThread:
     def __init__(self):
         self.proc = None
 
-    def runInThread(self, callback, cmd):
+    def runInThread(self, callback: callable, cmd: List[str]):
+        """
+        Runs `cmd` in a subprocess and then runs the `callback` function
+        when the subprocess has finished.
+        """
         self.proc = subprocess.Popen(cmd, env=os.environ.copy())
         self.proc.wait()
         callback()
@@ -205,8 +253,9 @@ class Operator:
         self._kill_subprocesses()
 
     def _reset_arduino(self):
+        self.arduino_trigger.reset_pin()
         self.arduino_trigger.terminate()
-        self.arduino_trigger.close()
+        # self.arduino_trigger.close()
 
         time.sleep(3)
         self.connect_arduino(self.params.arduino_address)
