@@ -249,6 +249,7 @@ ui.numbaCheck.toggled.connect(noticeNumbaCheck)
 ptr = 0
 lastTime = perf_counter()
 fps = None
+
 def update():
     global ui, ptr, lastTime, fps, LUT, img
     if ui.lutCheck.isChecked():
@@ -291,6 +292,7 @@ def update():
         fps = fps * (1-s) + (1.0/dt) * s
     ui.fpsLabel.setText('%0.2f fps' % fps)
     app.processEvents()  ## force complete redraw for every plot
+
 timer = QtCore.QTimer()
 timer.timeout.connect(update)
 timer.start(0)
