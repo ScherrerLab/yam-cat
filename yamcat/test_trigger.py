@@ -5,12 +5,13 @@ import click
 @click.command()
 @click.option('--address', type=str)
 @click.option('--pin', type=int)
-def main(address, pin):
+@click.option('--fps', type=float)
+def main(address, pin, fps):
     print("Connecting")
     board = Arduino(address)
     board.digital[pin].write(0)
 
-    framerate = 50
+    framerate = fps
 
     # divide by two for high and low signal outputs
     delay = (1 / framerate) / 2

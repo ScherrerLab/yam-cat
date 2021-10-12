@@ -116,7 +116,7 @@ class Writer(Process):
             #     self.image_view.setImage(frame)
             #     time.sleep(0.01)
             # else:
-            self.queue_preview.put(frame)
+            # self.queue_preview.put(frame)
             # time.sleep(0.05)
 
 
@@ -132,7 +132,7 @@ class VideoDisplayQThread(QtCore.QThread):
         self.camera_name = camera_name
         self.queue = queue
         self.position = position
-        self.app = mkQApp(self.camera_name)
+        # self.app = mkQApp(self.camera_name)
 
         self.image_view = ImageView()
         self.image_view.setFixedSize(*size)
@@ -142,12 +142,12 @@ class VideoDisplayQThread(QtCore.QThread):
         # self.app.exec()
 
     def update_frame(self):
-        frame = self.queue.get()
-        # frame = np.random.rand(1024, 1024)
+        # frame = self.queue.get()
+        frame = np.random.rand(1024, 1024)
 
         # downsample by 2
         self.image_view.setImage(frame[::2, ::2])
-        self.app.processEvents()
+        # self.app.processEvents()
 
     def run(self) -> None:
         # self.timer = QtCore.QTimer()

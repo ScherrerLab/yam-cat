@@ -28,7 +28,6 @@ class Main(QObject):
             dims,
             preview_position,
             preview_size,
-            queue_preview
     ):
         QObject.__init__(self)
         pprint(locals())
@@ -65,7 +64,7 @@ class Main(QObject):
         preview_position = tuple(map(int, preview_position.split(',')))
         preview_size = tuple(map(int, preview_size.split(',')))
 
-        queue_preview = Queue()
+        # queue_preview = Queue()
 
         writer = Writer(
             camera_name=camera_name,
@@ -74,20 +73,21 @@ class Main(QObject):
             fps=fps,
             fourcc=fourcc,
             dims=dims,
-            preview_size=preview_size,
-            preview_position=preview_position,
-            queue_preview=queue_preview
+            preview=False
+            # preview_size=preview_size,
+            # preview_position=preview_position,
+            # queue_preview=queue_preview
         )
         writer.start()
 
-        preview = VideoDisplayQThread(
-            camera_name=camera_name,
-            queue=queue_preview,
-            position=preview_position,
-            size=preview_size
-        )
+        # preview = VideoDisplayQThread(
+        #     camera_name=camera_name,
+        #     queue=queue_preview,
+        #     position=preview_position,
+        #     size=preview_size
+        # )
 
-        preview.start()
+        # preview.start()
 
         logger.info(f'Connecting to camera: {camera_name}')
 
@@ -102,7 +102,6 @@ class Main(QObject):
         dev_ix = guids.index(device_guid)
         device = devices[dev_ix]
 
-        # TODO: Have a way to choose the camera!!!
         camera = pylon.InstantCamera(pylon.TlFactory.GetInstance().CreateDevice(device))
         camera.Open()
 
@@ -166,6 +165,7 @@ class Main(QObject):
 @click.option('--preview-position', type=str)
 @click.option('--preview-size', type=str)
 def main(
+        device_guid,
         camera_name,
         fps,
         duration,
@@ -177,6 +177,7 @@ def main(
         preview_size
 ):
     return Main(
+        device_guid,
         camera_name,
         fps,
         duration,
