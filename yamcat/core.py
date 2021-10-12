@@ -25,6 +25,16 @@ class ArduinoTrigger(Process):
             address: str,
             pin: int,
     ):
+        """
+        Process for communicating with the Arduino to provide the camera trigger signal
+
+        Parameters
+        ----------
+        address: str
+            Address of the arduino, example: `/dev/ttyACM0`
+        pin: int
+            Arduino pin for sending the 5V trigger square waves
+        """
         super().__init__()
 
         logger.info(f'Connecting to Arduino at: {address}, pin#: {pin}')
@@ -37,7 +47,19 @@ class ArduinoTrigger(Process):
         self.fps: int = None
         logger.info(f'Yay Arduino is connected!')
 
-    def set_fps(self, fps):
+    def set_fps(self, fps: int):
+        """
+        Set the framerate
+
+        Parameters
+        ----------
+        fps: int
+            Framerate (frames per second)
+
+        Returns
+        -------
+
+        """
         self.fps = fps
 
         # because square wave pulses
@@ -55,6 +77,9 @@ class ArduinoTrigger(Process):
             time.sleep(self.delay)
 
     def reset_pin(self):
+        """
+        Reset the arduino, turn off the trigger signal.
+        """
         self.board.digital[self.pin].write(0)
 
     # def terminate(self) -> None:
@@ -76,6 +101,36 @@ class Writer(Process):
             preview_size: Tuple[int] = None,
             queue_preview: Queue = None
     ):
+        """
+        Process for writing the video to disk. Preview is  WIP.
+
+        Parameters
+        ----------
+        camera_name: str
+            Camera name, used for the video filename
+
+        queue: Queue
+            multiprocessing Queue that the camera process dumps frame into
+
+        output_path: str
+            full output path for the resultant video file
+
+        fps: int
+            framerate for video playback, usually same as that set for the trigger
+
+        fourcc: str
+            fourcc code for video codec
+
+        dims: Tuple[int, int]
+            dimensions for the resultant video
+
+        preview: bool
+            Show video preview, WIP
+
+        preview_position
+        preview_size
+        queue_preview
+        """
         super().__init__()
         self.queue = queue
         self.camera_name = camera_name
@@ -187,33 +242,11 @@ class VideoDisplay(Process):
         self.image_view.setImage(frame)
         self.app.processEvents()
 
-    # def run(self) -> None:
-    #     pass
 
-            # frame = self.queue.get()
-            #
-            # if frame is None:
-            #     print("VideoDisplay finished")
-            #     return
-            #
-            # self.image_view.setImage(frame)
-            # self.app.processEvents()
-            # time.sleep(1)
-
-    # @staticmethod
-    # def popenAndCall(onExit, cmd):
-    #     """
-    #     From:
-    #     https://stackoverflow.com/questions/2581817/python-subprocess-callback-when-cmd-exits
-    #
-    #     Runs a subprocess.Popen, and then calls the function onExit when the
-    #     subprocess completes.
-    #
-    #     Use it exactly the way you'd normally use subprocess.Popen, except include a
-    #     callable to execute as the first argument. onExit is a callable object, and
-    #     *popenArgs and **popenKWArgs are simply passed up to subprocess.Popen.
-    #     """
 class POpenThread:
+    """
+    Wrapper for the Acquisition Subprocess to attach a callback function when the acquisition process has finished
+    """
     def __init__(self):
         self.proc = None
 
@@ -238,6 +271,10 @@ class POpenThread:
 
 
 class Operator:
+    """
+    Operates the various processes for acquisition from multiple cameras and writing
+    to disk and keeps track of parameters.
+    """
     def __init__(self):
         self.arduino_trigger: ArduinoTrigger = None
 
@@ -253,10 +290,28 @@ class Operator:
         self.parent_ui = None
 
     def connect_arduino(self, addr: str):
+        """
+        Connect to the arduino
+
+        Parameters
+        ----------
+        addr: str
+            Address of the arduino, example: `/dev/ttyACM0`
+
+        """
         pin = get_default_config()['arduino']['pin']
         self.arduino_trigger = ArduinoTrigger(address=addr, pin=pin)
 
     def prime(self):
+        """
+        Prime the cameras for frame grabbing.
+
+        Launches the Acquisition subprocesses for each camera
+
+        Returns
+        -------
+
+        """
         os.makedirs(self.params.destination_dir, exist_ok=True)
 
         for guid in self.camera_guids:
@@ -283,6 +338,9 @@ class Operator:
         logger.info("** Cameras Primed **")
 
     def de_prime(self):
+        """
+        Cleans up acquisition subprocesses
+        """
         self._kill_subprocesses()
 
     def _kill_subprocesses(self):
@@ -292,16 +350,27 @@ class Operator:
         self.acquire_subprocesses: Dict[str, subprocess.Popen] = dict.fromkeys(self.camera_guids)
 
     def record(self):
+        """
+        Starts the trigger signal from the Arduino process, which in turn begins frame grabbing
+        in the acquisition subprocess.
+        """
         self.arduino_trigger.start()
         self.record_finished_counter = 0
 
     def record_finished(self):
+        """
+        Callback function, called when an acquisition subprocess has finished.
+        """
         print(f"Recording finished, {self.record_finished_counter}")
         self.record_finished_counter += 1
         if self.record_finished_counter == len(self.acquire_subprocesses.keys()):
             self.record_finished_all()
 
     def record_finished_all(self):
+        """
+        Called when all acquisition subprocesses have finished.
+        Resets the Arduino.
+        """
         self.record_finished_counter = 0
         self._reset_arduino()
 

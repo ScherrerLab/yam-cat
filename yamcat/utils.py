@@ -6,10 +6,10 @@ from pathlib import Path
 
 def get_basler_camera_guids() -> List[str]:
     """
-
     Returns
     -------
-    List of GUIDs for each of the basler cameras
+    List[str]
+        List of GUIDs for each of the basler cameras
     """
     tlFactory = pylon.TlFactory.GetInstance()
     devices = tlFactory.EnumerateDevices()
@@ -20,6 +20,12 @@ def get_basler_camera_guids() -> List[str]:
 
 
 def get_basler_camera_serial_numbers() -> List[int]:
+    """
+    Returns
+    -------
+    List[int]
+        List of serial numbers for each of the basler cams
+    """
     tlFactory = pylon.TlFactory.GetInstance()
     devices = tlFactory.EnumerateDevices()
 
@@ -29,6 +35,12 @@ def get_basler_camera_serial_numbers() -> List[int]:
 
 
 def get_default_config() -> dict:
+    """
+    Returns
+    -------
+    dict
+        Default configuration of for yamcat from the yaml file.
+    """
     return yaml.safe_load(
         open(Path(__file__).parent.joinpath('config.yaml'), 'r')
     )

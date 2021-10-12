@@ -13,6 +13,24 @@ class CameraConfig():
             preview_position: tuple,
             preview_size: tuple
     ):
+        """
+        Camera configuration parameters
+        Parameters
+        ----------
+        guid: str
+            Camera GUID
+
+        trigger_line: int
+            Trigger line that the camera expects the trigger signal from
+
+        name: str
+            User defined camera name
+
+        preview_position: tuple
+            WIP
+        preview_size: tuple
+            WIP
+        """
         self.name: str = name
         self.guid: str = guid
         self.trigger_line: int = trigger_line
@@ -35,6 +53,44 @@ class Params():
             auto_create_subdirs_index: int,
             video_subdir: str
     ):
+        """
+        All parameters for multi-camera acquisition.
+
+        Parameters
+        ----------
+        arduino_address: str
+            Address to the arduino, example: `/dev/ttyACM0`
+
+        camera_configs: List[CameraConfig]
+            List of CameraConfig instances that correspond to each camera
+
+        duration: int
+            Acquisition duration in seconds
+
+        video_format: str
+            Video format, just the fourcc specification
+
+        framerate: int
+            framerate for acquisition & playback
+
+        width: int
+            Video with used for all cameras
+
+        height: int
+            Video height used for all cameras
+
+        parent_dir: str
+            Parent directory within which to create a subdir to store each video from each camera
+
+        auto_create_subdirs: bool
+            Automatically determine a suffix index for the subdirs
+
+        auto_create_subdirs_index: int
+            The numerical index for the subdir suffix
+
+        video_subdir:
+            The subdir name within which video files from each camera will be saved
+        """
         if not os.path.exists(arduino_address):
             raise FileNotFoundError(f'Arduino address is not valid:\n{arduino_address}')
         else:
@@ -73,7 +129,14 @@ class Params():
 
         self.video_extension = get_default_config()['video-formats'][self.video_format]
 
-    def get_camera_config(self, name: str = None, guid: str = None):
+    def get_camera_config(self, name: str = None, guid: str = None) -> CameraConfig:
+        """
+        Get the `CameraConfig` instance by specifying either the user-defined camera name or the camera GUID
+
+        Returns
+        -------
+        CameraConfig
+        """
         if (name == None) and (guid == None):
             raise ValueError('Must specify `name` or `guid` of camera')
 
@@ -87,9 +150,12 @@ class Params():
             if getattr(camera_config, attr) == locals()[attr]:
                 return camera_config
 
-        return KeyError('Camera config not found with given information')
+        raise KeyError('Camera config not found with given information')
 
     def get_device_guids(self) -> List[str]:
+        """
+        Get a list of GUIDs for all currently connected cameras
+        """
         guids = []
         for camera_config in self.camera_configs:
             guids.append(camera_config.guid)
@@ -97,6 +163,19 @@ class Params():
         return guids
 
     def to_dict(self, device_guid: str) -> dict:
+        """
+        Get the parameters organized as a dictionary for one specific camera
+
+        Parameters
+        ----------
+        device_guid: str
+            The device for which to return the parameters along with the corresponding CameraConfig parameters
+
+        Returns
+        -------
+        dict
+            Parameters organized in a dictionary
+        """
         camera_config = self.get_camera_config(guid=device_guid)
 
         d = \
