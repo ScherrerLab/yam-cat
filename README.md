@@ -5,6 +5,18 @@ WIP
 
 # Installation
 
+Make sure you have build tools, openblas etc.
+
+```
+sudo apt install build-essential
+sudo apt install libopenblas*
+# these are needed for tiscamera
+sudo apt-get install libcairo2-dev libjpeg-dev libgif-dev
+```
+
+
+
+
 ## tiscamera
 
 ```
@@ -17,7 +29,6 @@ pip install git+https://github.com/pygobject/pycairo.git
 pip install p5py
 pip install PEP517
 pip install git+https://github.com/pygobject/pycairo.git
-sudo apt-get install libcairo2-dev libjpeg-dev libgif-dev build-essential
 pip install git+https://github.com/pygobject/pycairo.git
 pip install PyGObject
 python TIS.py 
