@@ -8,7 +8,7 @@ WIP
 Make sure you have build tools, openblas etc.
 
 ```
-sudo apt install build-essential git
+sudo apt install build-essential git python3-dev python3-venv python3-pip
 sudo apt install libopenblas*
 # these are needed for tiscamera
 sudo apt-get install libcairo2-dev libjpeg-dev libgif-dev
