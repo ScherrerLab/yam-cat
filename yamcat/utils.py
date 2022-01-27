@@ -75,4 +75,4 @@ def get_default_config() -> dict:
 
 
 def get_acquire_subprocess_path() -> str:
-    return f'{Path(__file__).parent.joinpath("acquire_tiscam.py")}'
+    return f'{Path(__file__).parent.joinpath("save_stream.py")}'

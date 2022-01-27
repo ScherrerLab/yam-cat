@@ -25,7 +25,7 @@ params = Params(
     camera_configs=[cc1, cc2],
     duration=60,
     video_format='mp4v',
-    framerate=76,
+    framerate=60,
     width=2048,
     height=1536,
     parent_dir='/home/labuser/test-yamcat-mouse',
@@ -35,7 +35,7 @@ params = Params(
 )
 
 o.connect_arduino(params.arduino_address)
-o.arduino_trigger.set_fps(80) # 84 will give ~76-77 fps on average
+o.arduino_trigger.set_fps(60) # 84 will give ~76-77 fps on average
 
 print(o.camera_guids)
 
