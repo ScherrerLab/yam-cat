@@ -1,0 +1,8 @@
+cython
+numpy
+click
+pyqt5
+opencv-python-headless
+pyfirmata
+pyqtgraph
+
