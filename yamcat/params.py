@@ -37,6 +37,11 @@ class CameraConfig():
         self.preview_position = tuple(map(int, preview_position))
         self.preview_size = tuple(map(int, preview_size))
 
+    def __repr__(self):
+        return f"name: {self.name}\n" \
+               f"guid: {self.guid}\n" \
+               f"trigger_line: {self.trigger_line}\n"
+
 
 class Params():
     def __init__(
@@ -141,14 +146,13 @@ class Params():
             raise ValueError('Must specify `name` or `guid` of camera')
 
         if guid is not None:
-            name = None
-            attr = 'guid'
+            for camera_config in self.camera_configs:
+                if getattr(camera_config, 'guid') == guid:
+                    return camera_config
         else:
-            attr = 'name'
-
-        for camera_config in self.camera_configs:
-            if getattr(camera_config, attr) == locals()[attr]:
-                return camera_config
+            for camera_config in self.camera_configs:
+                if getattr(camera_config, 'name') == name:
+                    return camera_config
 
         raise KeyError('Camera config not found with given information')
 

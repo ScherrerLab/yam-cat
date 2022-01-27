@@ -1,6 +1,35 @@
 from typing import *
 import yaml
 from pathlib import Path
+import sys
+import gi
+
+gi.require_version("Gst", "1.0")
+gi.require_version("Tcam", "0.1")
+
+from gi.repository import GLib, GObject, Gst, Tcam
+
+
+def get_tiscam_serial_numbers():
+    """
+    Print information about all  available devices
+    """
+
+    Gst.init([])
+
+    sample_pipeline = Gst.parse_launch("tcambin name=source ! fakesink")
+
+    if not sample_pipeline:
+        print("Unable to create pipeline")
+        sys.exit(1)
+
+    source = sample_pipeline.get_by_name("source")
+
+    serials = source.get_device_serials_backend()
+
+    serials = [s.split('-')[0] for s in serials]
+
+    return serials
 
 
 # def get_basler_camera_guids() -> List[str]:
@@ -46,4 +75,4 @@ def get_default_config() -> dict:
 
 
 def get_acquire_subprocess_path() -> str:
-    return f'{Path(__file__).parent.joinpath("acquire_subprocess.py")}'
+    return f'{Path(__file__).parent.joinpath("acquire_tiscam.py")}'

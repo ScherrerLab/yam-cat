@@ -62,7 +62,7 @@ def on_new_image(tis, userdata):
     userdata.busy = False
 
 
-class Main(QObject):
+class Main:
     def __init__(self,
                  device_guid,
                  camera_name,
@@ -74,10 +74,13 @@ class Main(QObject):
                  dims,
                  preview_position,
                  preview_size):
-        super().__init__()
+        # super().__init__()
         log_level = 'DEBUG'
         log_format = "%(asctime)s %(levelname)s %(pathname)s %(lineno)s \n %(message)s "
-        log_file = f'/home/lab/{datetime.now().strftime("acquire_%Y-%m-%d_%H.%M.%S-%f")}.ycl'
+        log_file = f'/home/labuser/acq_logs/' \
+                   f'{datetime.now().strftime("acquire-%Y.%m.%d.%H.%M.%S-%f")}_' \
+                   f'{camera_name}_' \
+                   f'{device_guid}.ycl'
 
         logging.basicConfig(
             level=log_level,
@@ -88,11 +91,19 @@ class Main(QObject):
 
         sys.excepthook = exception_hook
 
+        dims = tuple(map(int, dims.split(',')))
 
         tis = TIS()
 
         # The following line opens and configures the video capture device.
-        tis.openDevice("40120423", 2048, 1536, "120/1", SinkFormats.BGRA, False)
+        tis.openDevice(
+            serial=device_guid,
+            width=dims[0],
+            height=dims[1],
+            framerate=f"{fps}/1",
+            sinkformat=SinkFormats.BGRA,
+            showvideo=False
+        )
 
         # The next line is for selecting a device, video format and frame rate.
         #if not Tis.selectDevice():
@@ -152,12 +163,12 @@ class Main(QObject):
         queue = Queue()
 
         writer = Writer(
-            camera_name='test',
+            camera_name=camera_name,
             queue=queue,
-            output_path='/home/kushal/test-is-trigger.avi',
-            fps=100,
-            fourcc='mp4v',
-            dims=(2048, 1536),
+            output_path=video_output_path,
+            fps=fps,
+            fourcc=fourcc,
+            dims=dims,
             preview=False
             # preview_size=preview_size,
             # preview_position=preview_position,
@@ -167,7 +178,7 @@ class Main(QObject):
 
         nframes_current = 0
         nframes_total = duration * fps
-        while nframes_total < nframes_current:
+        while nframes_current < nframes_total:
             #time.sleep(1)
             #Tis.Set_Property("Software Trigger",1) # Send a software trigger
 
@@ -193,8 +204,15 @@ class Main(QObject):
 
             #lastkey = cv2.waitKey(10)
 
+        queue.put(None)
+
         # Stop the pipeline and clean ip
         tis.Stop_pipeline()
+
+        while writer.is_alive():
+            print("Waiting for writer to finish...")
+            sleep(1)
+
         print('Program ends')
 
 

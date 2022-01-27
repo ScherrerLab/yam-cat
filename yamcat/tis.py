@@ -103,11 +103,13 @@ class TIS:
 
         # Query a pointer to the appsink, so we can assign the callback function.
         self.appsink = self.pipeline.get_by_name("sink")
-        self.appsink.set_property("max-buffers",5)
-        self.appsink.set_property("drop",1)
-        self.appsink.set_property("emit-signals",1)
+        self.appsink.set_property("max-buffers", 0)
+        self.appsink.set_property("drop", False)
+        self.appsink.set_property("emit-signals", 1)
         self.appsink.connect('new-sample', self.on_new_buffer)
+        # self.appsink.connect('try-pull-sample', self.on_new_buffer)
 
+        self.frame_count = 0
 
     def on_new_buffer(self, appsink):
         self.newsample = True

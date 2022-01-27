@@ -9,7 +9,7 @@ from pyfirmata import Arduino, util
 import time
 import logging
 from params import Params
-from utils import get_basler_camera_guids, get_acquire_subprocess_path, get_default_config
+from utils import get_acquire_subprocess_path, get_default_config, get_tiscam_serial_numbers
 import threading
 from pyqtgraph import ImageView, mkQApp
 from PyQt5 import QtCore
@@ -137,11 +137,13 @@ class Writer(Process):
 
         self.fourcc = cv2.VideoWriter_fourcc(*fourcc)
 
+        self.dims = dims
+
         self.video_writer = cv2.VideoWriter(
             output_path,
             self.fourcc,
             int(fps),
-            dims,
+            self.dims,
             isColor=True
         )
         logger.info(f'Writer ready for: {self.camera_name}')
@@ -158,7 +160,14 @@ class Writer(Process):
 
     def run(self) -> None:
         while True:
-            frame = self.queue.get()
+            data = self.queue.get()
+
+            bpp = 4
+            dtype = np.uint8
+
+            img_mat = np.ndarray((self.dims[1], self.dims[0], bpp), buffer=data, dtype=dtype)
+
+            frame = cv2.cvtColor(img_mat, cv2.COLOR_BGRA2BGR)
 
             if frame is None:
                 print("Video writer finished")
@@ -277,8 +286,7 @@ class Operator:
     def __init__(self):
         self.arduino_trigger: ArduinoTrigger = None
 
-        self.tl_factory: pylon.TlFactory = pylon.TlFactory.GetInstance()
-        self.camera_guids: List[str] = get_basler_camera_guids()
+        self.camera_guids: List[str] = get_tiscam_serial_numbers()
 
         self.params: Params = None
 
@@ -313,7 +321,21 @@ class Operator:
         """
         os.makedirs(self.params.destination_dir, exist_ok=True)
 
-        for guid in self.camera_guids:
+        cameras_to_use = list()
+
+        for cc in self.params.camera_configs:
+            cameras_to_use.append(cc.guid)
+
+        for cc_guid in cameras_to_use:
+            if cc_guid not in self.camera_guids:
+                raise KeyError(
+                    f"You have asked to prime the following camera: {cc.guid}.\n"
+                    f"But it is not connected or available.\n"
+                    f"The following cameras are available:\n"
+                    f"{self.camera_guids}"
+                )
+
+        for guid in cameras_to_use:
             params_dict = self.params.to_dict(device_guid=guid)
             name = params_dict['camera-name']
             args = self.params.to_args(params_dict)
@@ -332,7 +354,7 @@ class Operator:
                 cmd=['python', get_acquire_subprocess_path()] + args
             )
 
-        time.sleep(3)
+        time.sleep(1)
 
         logger.info("** Cameras Primed **")
 
