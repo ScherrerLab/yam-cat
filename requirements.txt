@@ -5,4 +5,4 @@ pyqt5
 opencv-python-headless
 pyfirmata
 pyqtgraph
-
+pyyaml

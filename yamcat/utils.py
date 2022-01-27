@@ -1,37 +1,36 @@
-from pypylon import pylon
 from typing import *
 import yaml
 from pathlib import Path
 
 
-def get_basler_camera_guids() -> List[str]:
-    """
-    Returns
-    -------
-    List[str]
-        List of GUIDs for each of the basler cameras
-    """
-    tlFactory = pylon.TlFactory.GetInstance()
-    devices = tlFactory.EnumerateDevices()
-
-    guids = [dev.GetDeviceGUID() for dev in devices]
-
-    return guids
-
-
-def get_basler_camera_serial_numbers() -> List[int]:
-    """
-    Returns
-    -------
-    List[int]
-        List of serial numbers for each of the basler cams
-    """
-    tlFactory = pylon.TlFactory.GetInstance()
-    devices = tlFactory.EnumerateDevices()
-
-    serial_numbers = [int(dev.GetSerialNumber()) for dev in devices]
-
-    return serial_numbers
+# def get_basler_camera_guids() -> List[str]:
+#     """
+#     Returns
+#     -------
+#     List[str]
+#         List of GUIDs for each of the basler cameras
+#     """
+#     tlFactory = pylon.TlFactory.GetInstance()
+#     devices = tlFactory.EnumerateDevices()
+#
+#     guids = [dev.GetDeviceGUID() for dev in devices]
+#
+#     return guids
+#
+#
+# def get_basler_camera_serial_numbers() -> List[int]:
+#     """
+#     Returns
+#     -------
+#     List[int]
+#         List of serial numbers for each of the basler cams
+#     """
+#     tlFactory = pylon.TlFactory.GetInstance()
+#     devices = tlFactory.EnumerateDevices()
+#
+#     serial_numbers = [int(dev.GetSerialNumber()) for dev in devices]
+#
+#     return serial_numbers
 
 
 def get_default_config() -> dict:

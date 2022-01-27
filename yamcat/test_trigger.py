@@ -2,6 +2,13 @@ from pyfirmata import Arduino, util
 from time import sleep
 import click
 
+
+"""
+Usage:
+
+python test_trigger --address /dev/ttyACM0 --pin 9 --fps 50
+"""
+
 @click.command()
 @click.option('--address', type=str)
 @click.option('--pin', type=int)

@@ -8,7 +8,6 @@ from pathlib import Path
 from pyfirmata import Arduino, util
 import time
 import logging
-from pypylon import pylon
 from params import Params
 from utils import get_basler_camera_guids, get_acquire_subprocess_path, get_default_config
 import threading

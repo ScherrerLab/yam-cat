@@ -1,6 +1,5 @@
 import sys
 from multiprocessing import Process, Queue
-from pypylon import pylon
 import logging
 from datetime import datetime
 import click
