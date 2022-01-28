@@ -28,10 +28,7 @@ params = Params(
     framerate=60,
     width=2048,
     height=1536,
-    parent_dir='/home/labuser/test-yamcat-mouse',
-    auto_create_subdirs=True,
-    auto_create_subdirs_index=0,
-    video_subdir='hot-3'
+    destination_dir='/home/labuser/test-yamcat-mouse/bah',
 )
 
 o.connect_arduino(params.arduino_address)

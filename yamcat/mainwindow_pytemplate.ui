@@ -6,15 +6,15 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1445</width>
-    <height>773</height>
+    <width>463</width>
+    <height>783</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>yam-cat | Yet Another Multi Camera Acquisition Tool</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <layout class="QHBoxLayout" name="horizontalLayout_9" stretch="1,2">
+   <layout class="QVBoxLayout" name="verticalLayout_8">
     <item>
      <layout class="QVBoxLayout" name="verticalLayout_6">
       <item>
@@ -24,308 +24,218 @@
         </property>
         <layout class="QVBoxLayout" name="verticalLayout_7">
          <item>
-          <layout class="QHBoxLayout" name="horizontalLayout_3">
-           <item>
-            <widget class="QLabel" name="label_12">
-             <property name="text">
-              <string>Arduino Address:</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QLineEdit" name="lineEditArduinoAddress">
-             <property name="placeholderText">
-              <string>/dev/ttyX</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QPushButton" name="pushButtonConnectArduino">
-             <property name="text">
-              <string>Connect</string>
-             </property>
-             <property name="checkable">
-              <bool>false</bool>
-             </property>
-            </widget>
-           </item>
-          </layout>
+          <widget class="QGroupBox" name="groupBox_2">
+           <property name="font">
+            <font>
+             <bold>false</bold>
+            </font>
+           </property>
+           <property name="title">
+            <string>Arduino</string>
+           </property>
+           <layout class="QVBoxLayout" name="verticalLayout_3">
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_3">
+              <item>
+               <widget class="QLabel" name="label_12">
+                <property name="text">
+                 <string>Arduino Address:</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLineEdit" name="lineEditArduinoAddress">
+                <property name="placeholderText">
+                 <string>/dev/ttyX</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="pushButtonConnectArduino">
+                <property name="text">
+                 <string>Connect</string>
+                </property>
+                <property name="checkable">
+                 <bool>false</bool>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <widget class="QLabel" name="label_3">
+              <property name="text">
+               <string>Ususually something like:
+
+/dev/ttyACM0
+
+Running this in the terminal can help you find the right address:
+
+ll /dev/ttyACM*</string>
+              </property>
+              <property name="textInteractionFlags">
+               <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
          </item>
          <item>
-          <layout class="QHBoxLayout" name="horizontalLayout">
-           <item>
-            <layout class="QVBoxLayout" name="verticalLayout">
-             <item>
-              <widget class="QLabel" name="label">
-               <property name="toolTip">
-                <string>Give a name for the cameras, the camera name is used as a prefix for the video files.
-You may drag and drop items in this list so that camera names and GUIDs correspond.</string>
-               </property>
-               <property name="text">
-                <string>Camera Name</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QListWidget" name="listWidgetCameraName">
-               <property name="toolTip">
-                <string>Give a name for the cameras, the camera name is used as a prefix for the video files.
-You may drag and drop items in this list so that camera names and GUIDs correspond.</string>
-               </property>
-               <property name="dragDropMode">
-                <enum>QAbstractItemView::InternalMove</enum>
-               </property>
-               <property name="defaultDropAction">
-                <enum>Qt::MoveAction</enum>
-               </property>
-               <property name="alternatingRowColors">
-                <bool>true</bool>
-               </property>
-               <property name="selectionMode">
-                <enum>QAbstractItemView::SingleSelection</enum>
-               </property>
-               <property name="selectionBehavior">
-                <enum>QAbstractItemView::SelectRows</enum>
-               </property>
-               <item>
-                <property name="text">
-                 <string>a</string>
-                </property>
-                <property name="flags">
-                 <set>ItemIsSelectable|ItemIsEditable|ItemIsDragEnabled|ItemIsUserCheckable|ItemIsEnabled</set>
-                </property>
-               </item>
-               <item>
-                <property name="text">
-                 <string>b</string>
-                </property>
-               </item>
-               <item>
-                <property name="text">
-                 <string>c</string>
-                </property>
-               </item>
-               <item>
-                <property name="text">
-                 <string>d</string>
-                </property>
-               </item>
-               <item>
-                <property name="text">
-                 <string>e</string>
-                </property>
-               </item>
-               <item>
-                <property name="text">
-                 <string>f</string>
-                </property>
-               </item>
-              </widget>
-             </item>
-            </layout>
-           </item>
-           <item>
-            <layout class="QVBoxLayout" name="verticalLayout_2">
-             <item>
-              <widget class="QLabel" name="label_2">
-               <property name="toolTip">
-                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Unique hardware identifier for the camera.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-               </property>
-               <property name="text">
-                <string>Camera GUID</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QListWidget" name="listWidgetCameraGUID">
-               <property name="toolTip">
-                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Unique hardware identifier for the camera.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-               </property>
-               <property name="dragDropMode">
-                <enum>QAbstractItemView::NoDragDrop</enum>
-               </property>
-               <property name="defaultDropAction">
-                <enum>Qt::CopyAction</enum>
-               </property>
-               <property name="alternatingRowColors">
-                <bool>true</bool>
-               </property>
-               <property name="selectionMode">
-                <enum>QAbstractItemView::SingleSelection</enum>
-               </property>
-               <property name="selectionBehavior">
-                <enum>QAbstractItemView::SelectRows</enum>
-               </property>
-               <item>
-                <property name="text">
-                 <string>u</string>
-                </property>
-               </item>
-               <item>
-                <property name="text">
-                 <string>v</string>
-                </property>
-               </item>
-               <item>
-                <property name="text">
-                 <string>w</string>
-                </property>
-               </item>
-               <item>
-                <property name="text">
-                 <string>x</string>
-                </property>
-               </item>
-               <item>
-                <property name="text">
-                 <string>y</string>
-                </property>
-               </item>
-               <item>
-                <property name="text">
-                 <string>z</string>
-                </property>
-               </item>
-              </widget>
-             </item>
-            </layout>
-           </item>
-           <item>
-            <layout class="QVBoxLayout" name="verticalLayout_3">
-             <item>
-              <widget class="QLabel" name="label_3">
-               <property name="toolTip">
-                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Trigger line to use to trigger frame capture from the camera.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-               </property>
-               <property name="text">
-                <string>Trigger Line</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QListWidget" name="listWidgetTriggerLine">
-               <property name="sizePolicy">
-                <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-                 <horstretch>0</horstretch>
-                 <verstretch>0</verstretch>
-                </sizepolicy>
-               </property>
-               <property name="minimumSize">
-                <size>
-                 <width>75</width>
-                 <height>0</height>
-                </size>
-               </property>
-               <property name="maximumSize">
-                <size>
-                 <width>75</width>
-                 <height>16777215</height>
-                </size>
-               </property>
-               <property name="toolTip">
-                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Trigger line to use to trigger frame capture from the camera.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-               </property>
-               <property name="dragDropMode">
-                <enum>QAbstractItemView::NoDragDrop</enum>
-               </property>
-               <property name="defaultDropAction">
-                <enum>Qt::CopyAction</enum>
-               </property>
-               <property name="alternatingRowColors">
-                <bool>true</bool>
-               </property>
-               <property name="selectionMode">
-                <enum>QAbstractItemView::SingleSelection</enum>
-               </property>
-               <property name="selectionBehavior">
-                <enum>QAbstractItemView::SelectRows</enum>
-               </property>
-               <item>
-                <property name="text">
-                 <string>1</string>
-                </property>
-                <property name="flags">
-                 <set>ItemIsSelectable|ItemIsEditable|ItemIsDragEnabled|ItemIsUserCheckable|ItemIsEnabled</set>
-                </property>
-               </item>
-               <item>
-                <property name="text">
-                 <string>2</string>
-                </property>
-               </item>
-               <item>
-                <property name="text">
-                 <string>3</string>
-                </property>
-               </item>
-               <item>
-                <property name="text">
-                 <string>4</string>
-                </property>
-               </item>
-               <item>
-                <property name="text">
-                 <string>5</string>
-                </property>
-               </item>
-               <item>
-                <property name="text">
-                 <string>6</string>
-                </property>
-               </item>
-              </widget>
-             </item>
-            </layout>
-           </item>
-           <item>
-            <layout class="QVBoxLayout" name="verticalLayout_4">
-             <item>
-              <widget class="QLabel" name="label_5">
-               <property name="text">
-                <string>Preview Position</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QListWidget" name="listWidgetPreviewPos">
-               <property name="dragDropMode">
-                <enum>QAbstractItemView::InternalMove</enum>
-               </property>
-               <item>
-                <property name="text">
-                 <string>top-left</string>
-                </property>
-               </item>
-               <item>
-                <property name="text">
-                 <string>top-right</string>
-                </property>
-               </item>
-               <item>
-                <property name="text">
-                 <string>bottom-left</string>
-                </property>
-               </item>
-               <item>
-                <property name="text">
-                 <string>bottom-right</string>
-                </property>
-               </item>
-              </widget>
-             </item>
-            </layout>
-           </item>
-          </layout>
-         </item>
-         <item>
-          <widget class="QPushButton" name="pushButtonReScanCameras">
-           <property name="toolTip">
-            <string>Re-scan for cameras if you've connected/disconnected cameras.
-This may effect your camera names and the order!</string>
+          <widget class="QGroupBox" name="groupBox_3">
+           <property name="title">
+            <string>Camera</string>
            </property>
-           <property name="text">
-            <string>Re-scan cameras</string>
-           </property>
+           <layout class="QVBoxLayout" name="verticalLayout_4">
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout">
+              <item>
+               <layout class="QVBoxLayout" name="verticalLayout">
+                <item>
+                 <widget class="QLabel" name="label">
+                  <property name="toolTip">
+                   <string>Give a name for the cameras, the camera name is used as a prefix for the video files.
+You may drag and drop items in this list so that camera names and GUIDs correspond.</string>
+                  </property>
+                  <property name="text">
+                   <string>Camera Name</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QListWidget" name="listWidgetCameraName">
+                  <property name="toolTip">
+                   <string>Give a name for the cameras, the camera name is used as a prefix for the video files.
+You may drag and drop items in this list so that camera names and GUIDs correspond.</string>
+                  </property>
+                  <property name="dragDropMode">
+                   <enum>QAbstractItemView::InternalMove</enum>
+                  </property>
+                  <property name="defaultDropAction">
+                   <enum>Qt::MoveAction</enum>
+                  </property>
+                  <property name="alternatingRowColors">
+                   <bool>true</bool>
+                  </property>
+                  <property name="selectionMode">
+                   <enum>QAbstractItemView::SingleSelection</enum>
+                  </property>
+                  <property name="selectionBehavior">
+                   <enum>QAbstractItemView::SelectRows</enum>
+                  </property>
+                  <item>
+                   <property name="text">
+                    <string>a</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>b</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>c</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>d</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>e</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>f</string>
+                   </property>
+                  </item>
+                 </widget>
+                </item>
+               </layout>
+              </item>
+              <item>
+               <layout class="QVBoxLayout" name="verticalLayout_2">
+                <item>
+                 <widget class="QLabel" name="label_2">
+                  <property name="toolTip">
+                   <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Unique hardware identifier for the camera.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                  </property>
+                  <property name="text">
+                   <string>Camera GUID</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QListWidget" name="listWidgetCameraGUID">
+                  <property name="toolTip">
+                   <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Unique hardware identifier for the camera.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                  </property>
+                  <property name="dragDropMode">
+                   <enum>QAbstractItemView::NoDragDrop</enum>
+                  </property>
+                  <property name="defaultDropAction">
+                   <enum>Qt::CopyAction</enum>
+                  </property>
+                  <property name="alternatingRowColors">
+                   <bool>true</bool>
+                  </property>
+                  <property name="selectionMode">
+                   <enum>QAbstractItemView::SingleSelection</enum>
+                  </property>
+                  <property name="selectionBehavior">
+                   <enum>QAbstractItemView::SelectRows</enum>
+                  </property>
+                  <item>
+                   <property name="text">
+                    <string>u</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>v</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>w</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>x</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>y</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>z</string>
+                   </property>
+                  </item>
+                 </widget>
+                </item>
+               </layout>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <widget class="QPushButton" name="pushButtonReScanCameras">
+              <property name="toolTip">
+               <string>Re-scan for cameras if you've connected/disconnected cameras.</string>
+              </property>
+              <property name="text">
+               <string>Re-scan cameras</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
           </widget>
          </item>
         </layout>
@@ -400,22 +310,17 @@ This may effect your camera names and the order!</string>
             </widget>
            </item>
            <item>
-            <widget class="QSpinBox" name="spinBoxFramerate">
-             <property name="suffix">
-              <string> /s</string>
-             </property>
-             <property name="prefix">
-              <string/>
-             </property>
-             <property name="minimum">
-              <number>1</number>
-             </property>
-             <property name="maximum">
-              <number>500</number>
-             </property>
-             <property name="value">
-              <number>50</number>
-             </property>
+            <widget class="QComboBox" name="comboBoxFramerate">
+             <item>
+              <property name="text">
+               <string>120</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>60</string>
+              </property>
+             </item>
             </widget>
            </item>
            <item>
@@ -427,6 +332,9 @@ This may effect your camera names and the order!</string>
            </item>
            <item>
             <widget class="QSpinBox" name="spinBoxWidth">
+             <property name="enabled">
+              <bool>false</bool>
+             </property>
              <property name="suffix">
               <string> px</string>
              </property>
@@ -440,7 +348,7 @@ This may effect your camera names and the order!</string>
               <number>128</number>
              </property>
              <property name="value">
-              <number>1024</number>
+              <number>2048</number>
              </property>
             </widget>
            </item>
@@ -453,6 +361,9 @@ This may effect your camera names and the order!</string>
            </item>
            <item>
             <widget class="QSpinBox" name="spinBoxHeight">
+             <property name="enabled">
+              <bool>false</bool>
+             </property>
              <property name="suffix">
               <string> px</string>
              </property>
@@ -466,7 +377,7 @@ This may effect your camera names and the order!</string>
               <number>128</number>
              </property>
              <property name="value">
-              <number>1024</number>
+              <number>1536</number>
              </property>
             </widget>
            </item>
@@ -486,9 +397,21 @@ This may effect your camera names and the order!</string>
           </layout>
          </item>
          <item>
+          <widget class="QLabel" name="label_5">
+           <property name="text">
+            <string>The final filename will look like this:
+
+parent_dir/subdir-suffix/camera-name.avi</string>
+           </property>
+          </widget>
+         </item>
+         <item>
           <layout class="QHBoxLayout" name="horizontalLayout_5">
            <item>
             <widget class="QLabel" name="label_9">
+             <property name="toolTip">
+              <string/>
+             </property>
              <property name="text">
               <string>Parent dir:</string>
              </property>
@@ -497,10 +420,10 @@ This may effect your camera names and the order!</string>
            <item>
             <widget class="QLineEdit" name="lineEditParentDir">
              <property name="toolTip">
-              <string>Parent directory for subdirs which contain the video files</string>
+              <string>This would be for something like an overarching experiment.</string>
              </property>
              <property name="placeholderText">
-              <string>/path/to/savedir</string>
+              <string>/path/to/parent_dir</string>
              </property>
             </widget>
            </item>
@@ -523,17 +446,58 @@ This may effect your camera names and the order!</string>
           </layout>
          </item>
          <item>
-          <layout class="QHBoxLayout" name="horizontalLayout_2">
+          <layout class="QHBoxLayout" name="horizontalLayout_7">
            <item>
-            <widget class="QCheckBox" name="checkBoxNumericalSuffix">
+            <widget class="QLabel" name="label_10">
              <property name="toolTip">
-              <string>Automatically create and increment a numerical suffix to the video file names.</string>
+              <string/>
              </property>
              <property name="text">
-              <string>Auto-create subdirs with numerical suffix:</string>
+              <string>Subdir name:</string>
              </property>
-             <property name="checked">
-              <bool>true</bool>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLineEdit" name="lineEditVideoSubDir">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="toolTip">
+              <string>This is a subdir that is created under parent dir.
+For something like the experiment day.</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <spacer name="horizontalSpacer_6">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="sizeType">
+              <enum>QSizePolicy::Minimum</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>40</width>
+               <height>20</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <layout class="QHBoxLayout" name="horizontalLayout_2">
+           <item>
+            <widget class="QLabel" name="label_13">
+             <property name="toolTip">
+              <string/>
+             </property>
+             <property name="text">
+              <string>Subdir suffix:</string>
              </property>
             </widget>
            </item>
@@ -543,10 +507,29 @@ This may effect your camera names and the order!</string>
               <bool>true</bool>
              </property>
              <property name="toolTip">
-              <string>Automatically create and increment a numerical suffix to the video file names.</string>
+              <string>This will add a numerical suffix to the subdir.
+Useful for something like mosue ID
+
+Disabled if set to -1</string>
+             </property>
+             <property name="minimum">
+              <number>-1</number>
              </property>
              <property name="maximum">
               <number>999</number>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QCheckBox" name="checkBoxNumericalSuffix">
+             <property name="toolTip">
+              <string>Automatically increment this number after each recording</string>
+             </property>
+             <property name="text">
+              <string>Auto-increment</string>
+             </property>
+             <property name="checked">
+              <bool>true</bool>
              </property>
             </widget>
            </item>
@@ -566,44 +549,33 @@ This may effect your camera names and the order!</string>
           </layout>
          </item>
          <item>
-          <layout class="QHBoxLayout" name="horizontalLayout_7">
+          <layout class="QHBoxLayout" name="horizontalLayout_9">
            <item>
-            <widget class="QLabel" name="label_10">
+            <widget class="QLabel" name="label_14">
              <property name="toolTip">
-              <string>Name that is added as a prefix to each video and subdir.</string>
+              <string>This examines the all the path params (parent dir, subdir, suffix) and validates them live.</string>
              </property>
              <property name="text">
-              <string>Video subdir name:</string>
+              <string>Path status:</string>
              </property>
             </widget>
            </item>
            <item>
-            <widget class="QLineEdit" name="lineEditVideoSubDir">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
+            <widget class="QLabel" name="labelPathStatus">
+             <property name="font">
+              <font>
+               <bold>true</bold>
+              </font>
              </property>
-             <property name="toolTip">
-              <string>Name that is added as a prefix to each video and subdir.</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QPushButton" name="pushButtonHelpFileNames">
              <property name="text">
-              <string>Help on file names</string>
+              <string/>
              </property>
             </widget>
            </item>
            <item>
-            <spacer name="horizontalSpacer_6">
+            <spacer name="horizontalSpacer_7">
              <property name="orientation">
               <enum>Qt::Horizontal</enum>
-             </property>
-             <property name="sizeType">
-              <enum>QSizePolicy::Minimum</enum>
              </property>
              <property name="sizeHint" stdset="0">
               <size>
@@ -686,9 +658,6 @@ This may effect your camera names and the order!</string>
       </item>
      </layout>
     </item>
-    <item>
-     <widget class="GraphicsView" name="graphicsView"/>
-    </item>
    </layout>
   </widget>
   <widget class="QMenuBar" name="menubar">
@@ -696,61 +665,33 @@ This may effect your camera names and the order!</string>
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1445</width>
-     <height>22</height>
+     <width>463</width>
+     <height>19</height>
     </rect>
    </property>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
  </widget>
- <customwidgets>
-  <customwidget>
-   <class>GraphicsView</class>
-   <extends>QGraphicsView</extends>
-   <header>pyqtgraph</header>
-  </customwidget>
- </customwidgets>
  <tabstops>
   <tabstop>lineEditArduinoAddress</tabstop>
   <tabstop>pushButtonConnectArduino</tabstop>
   <tabstop>listWidgetCameraName</tabstop>
   <tabstop>listWidgetCameraGUID</tabstop>
-  <tabstop>listWidgetTriggerLine</tabstop>
-  <tabstop>listWidgetPreviewPos</tabstop>
   <tabstop>pushButtonReScanCameras</tabstop>
   <tabstop>spinBoxDuration</tabstop>
   <tabstop>comboBoxVideoFormat</tabstop>
-  <tabstop>spinBoxFramerate</tabstop>
+  <tabstop>comboBoxFramerate</tabstop>
   <tabstop>spinBoxWidth</tabstop>
   <tabstop>spinBoxHeight</tabstop>
   <tabstop>lineEditParentDir</tabstop>
-  <tabstop>checkBoxNumericalSuffix</tabstop>
-  <tabstop>spinBoxNumericalSuffix</tabstop>
   <tabstop>lineEditVideoSubDir</tabstop>
-  <tabstop>pushButtonHelpFileNames</tabstop>
+  <tabstop>spinBoxNumericalSuffix</tabstop>
+  <tabstop>checkBoxNumericalSuffix</tabstop>
   <tabstop>pushButtonPreview</tabstop>
   <tabstop>pushButtonPrime</tabstop>
   <tabstop>pushButtonRecord</tabstop>
   <tabstop>pushButtonAbort</tabstop>
-  <tabstop>graphicsView</tabstop>
  </tabstops>
  <resources/>
- <connections>
-  <connection>
-   <sender>checkBoxNumericalSuffix</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>spinBoxNumericalSuffix</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>211</x>
-     <y>651</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>347</x>
-     <y>656</y>
-    </hint>
-   </hints>
-  </connection>
- </connections>
+ <connections/>
 </ui>

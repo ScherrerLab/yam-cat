@@ -22,6 +22,9 @@ import time
 import sys
 import gi
 import click
+from pathlib import Path
+import os
+
 gi.require_version("Tcam", "0.1")
 gi.require_version("Gst", "1.0")
 
@@ -88,6 +91,11 @@ def main(
     if serial is not None:
         camera = pipeline.get_by_name("bin")
         camera.set_property("serial", serial)
+
+    parent_dir = Path(video_output_path).parent
+
+    if not os.path.isdir(parent_dir):
+        os.makedirs(parent_dir, exist_ok=True)
 
     file_location = video_output_path
 

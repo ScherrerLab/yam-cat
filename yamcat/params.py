@@ -53,10 +53,7 @@ class Params():
             framerate: int,
             width: int,
             height: int,
-            parent_dir: str,
-            auto_create_subdirs: bool,
-            auto_create_subdirs_index: int,
-            video_subdir: str
+            destination_dir: Path,
     ):
         """
         All parameters for multi-camera acquisition.
@@ -84,17 +81,8 @@ class Params():
         height: int
             Video height used for all cameras
 
-        parent_dir: str
-            Parent directory within which to create a subdir to store each video from each camera
-
-        auto_create_subdirs: bool
-            Automatically determine a suffix index for the subdirs
-
-        auto_create_subdirs_index: int
-            The numerical index for the subdir suffix
-
-        video_subdir:
-            The subdir name within which video files from each camera will be saved
+        destination_dir: str
+            Directory within which to store videos from each camera
         """
         if not os.path.exists(arduino_address):
             raise FileNotFoundError(f'Arduino address is not valid:\n{arduino_address}')
@@ -115,22 +103,8 @@ class Params():
         #     )
         #
         # else:
-        if not os.path.isdir(parent_dir):
-            os.makedirs(parent_dir, exist_ok=True)
 
-        self.parent_dir: str = parent_dir
-
-        self.auto_create_subdirs: bool = auto_create_subdirs
-        if auto_create_subdirs:
-            subdir_suffix: str = '-' + str(auto_create_subdirs_index)
-        else:
-            subdir_suffix: str = ''
-
-        self.video_subdir: str = video_subdir
-
-        self.destination_dir: Path = Path(
-            os.path.join(self.parent_dir, f'{video_subdir}{subdir_suffix}')
-        )
+        self.destination_dir: Path = destination_dir
 
         self.video_extension = get_default_config()['video-formats'][self.video_format]
 

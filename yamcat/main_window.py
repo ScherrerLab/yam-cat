@@ -8,6 +8,7 @@ from logging import getLogger
 from utils import *
 from params import CameraConfig, Params
 from core import Operator
+import os
 
 
 MODE_ARDUINO_CONNECTED = 'MODE_ARDUINO_CONNECTED'
@@ -103,22 +104,20 @@ class MainWindow(QtWidgets.QMainWindow):
         self.ui.listWidgetCameraName.itemClicked.connect(self.highlight_preview)
 
         self.ui.listWidgetCameraGUID.itemClicked.connect(self.highlight_preview)
-        self.ui.listWidgetTriggerLine.itemClicked.connect(self.highlight_preview)
 
         self.ui.lineEditArduinoAddress.setText(get_default_config()['arduino']['address'])
 
         self.ui.comboBoxVideoFormat.addItems(list(get_default_config()['video-formats'].keys()))
 
+        self.ui.lineEditParentDir.textEdited.connect(self.validate_path)
+        self.ui.lineEditVideoSubDir.textEdited.connect(self.validate_path)
+        self.ui.spinBoxNumericalSuffix.valueChanged.connect(self.validate_path)
+
     def scan_cameras(self):
         self.ui.listWidgetCameraGUID.clear()
-        self.ui.listWidgetTriggerLine.clear()
         self.ui.listWidgetCameraName.clear()
 
         self.ui.listWidgetCameraGUID.addItems(self.operator.camera_guids)
-
-        # Use the config yaml to set default trigger lines for the cameras using their GUIDs
-        for cg in self.operator.camera_guids:
-            self.ui.listWidgetTriggerLine.addItem(str(get_default_config()['camera-guids'][cg]))
 
         # populate camera name and GUID list widget
         for i in range(len(self.operator.camera_guids)):
@@ -127,15 +126,10 @@ class MainWindow(QtWidgets.QMainWindow):
         # TODO: make them editable
         for ix in range(len(self.operator.camera_guids)):
             item_cam_name = self.ui.listWidgetCameraName.item(ix)
-            item_trig_line = self.ui.listWidgetTriggerLine.item(ix)
 
-            item_cam_name.setFlags(item_cam_name.flags() | QtCore.Qt.ItemIsEditable)
-            item_trig_line.setFlags(item_trig_line.flags() | QtCore.Qt.ItemIsEditable)
+            item_cam_name.setFlags(item_cam_name.flags())
 
     def camera_config_changed(self):
-        pass
-
-    def help_filenames(self):
         pass
 
     def set_ui_mode(self, mode: str):
@@ -208,9 +202,6 @@ class MainWindow(QtWidgets.QMainWindow):
         for ix in self.ui.listWidgetCameraGUID.count():
             guid = self.ui.listWidgetCameraGUID.item(ix).text()
             name = self.ui.listWidgetCameraName.item(ix).text()
-            trigger_line = self.ui.listWidgetTriggerLine.item(ix).text()
-            position = self.ui.listWidgetPreviewPos.item(ix).text()
-            position = self.preview_positions[position]
 
             if name == '':
                 raise KeyError(
@@ -218,22 +209,8 @@ class MainWindow(QtWidgets.QMainWindow):
                     f'Please enter a camera name for all cameras.'
                 )
 
-            if trigger_line == '':
-                raise KeyError(
-                    f'`Trigger Line` not defined for camera with GUID:\n{guid}\n\n'
-                    f'Please enter the numerical trigger line for all cameras.'
-                )
-
-            try:
-                trigger_line = int(trigger_line)
-            except TypeError:
-                raise TypeError(
-                    f'`Trigger Line` for camera with the following GUID must be an integer number:\n{guid}\n\n'
-                    f'Please enter a numerical trigger line for all cameras. You have entered:\n{trigger_line}'
-                )
-
             camera_configs.append(
-                CameraConfig(name=name, guid=guid, trigger_line=trigger_line)
+                CameraConfig(name=name, guid=guid, trigger_line=0)
             )
 
         return camera_configs
@@ -245,16 +222,38 @@ class MainWindow(QtWidgets.QMainWindow):
             camera_configs=self.get_camera_configs(),
             duration=self.ui.spinBoxDuration.value(),
             video_format=self.ui.comboBoxVideoFormat.currentText(),
-            framerate=self.ui.spinBoxFramerate.value(),
+            framerate=self.ui.comboBoxFramerate.currentText(),
             width=self.ui.spinBoxWidth.value(),
             height=self.ui.spinBoxHeight.value(),
-            parent_dir=self.ui.lineEditParentDir.value(),
-            auto_create_subdirs=self.ui.checkBoxNumericalSuffix.isChecked(),
-            auto_create_subdirs_index=self.ui.spinBoxNumericalSuffix(),
-            video_subdir=self.ui.lineEditVideoSubDir.text()
+            destination_dir=self._construct_full_destination_dir()
         )
 
         return params
+
+    def _construct_full_destination_dir(self) -> Path:
+        parent_dir = self.ui.lineEditParentDir.text()
+        num_subdir_suffix = self.ui.spinBoxNumericalSuffix.value()
+
+        if num_subdir_suffix > -1:
+            subdir_suffix = '-' + str(num_subdir_suffix)
+        else:
+            subdir_suffix = ''
+
+        video_subdir = self.ui.lineEditVideoSubDir.text()
+
+        return Path(os.path.join(parent_dir, f'{video_subdir}{subdir_suffix}'))
+
+    def validate_path(self):
+        """
+        Validate the path to the dir to save the videos to make sure videos aren't overwritten
+        """
+        path = self._construct_full_destination_dir()
+        if path.is_dir():
+            self.ui.labelPathStatus.setText("<b>Path exists! Change parent dir + subdir combination.</b>")
+            self.ui.pushButtonPrime.setEnabled(False)
+        else:
+            self.ui.labelPathStatus.setText("<b>Path is ok!</b>")
+            self.ui.pushButtonPrime.setEnabled(True)
 
     def prime(self):
         self.operator.params = self.get_params()

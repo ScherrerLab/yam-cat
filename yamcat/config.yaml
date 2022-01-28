@@ -1,4 +1,31 @@
-# Config for yam-cat GUI
+# Default config for yam-cat
+
+# *** Default camera names *** #
+camera-names:
+  40120421: left
+  40120422: right
+  40120423: back
+  40120424: front
+
+# *** Supported Video Formats *** #
+# !! WIP, NOT USED !!
+# You may edit this to enable different video formats in the GUI
+
+# Format:
+# fourcc: container
+  # Description:
+  # fourcc:
+    # used by OpenCV VideoWriter
+  # container:
+    # file extension
+
+video-formats:
+  mp4v: avi
+
+# *** Default Arduino hardware settings *** #
+arduino:
+  address: /dev/ttyACM0
+  pin: 9
 
 # *** Default Camera Trigger Lines *** #
 
@@ -8,6 +35,7 @@
 # Example:
 # 2676016BC31A: 4
 
+# tiscams don't have a specific trigger line, so just set as 0
 camera-serials:
   23839514: 4
   40092194: 2
@@ -24,23 +52,3 @@ camera-guids:
   40120422: 0
   40120423: 0
   40120424: 0
-
-
-# *** Video Formats *** #
-# You may edit this to enable different video formats in the GUI
-
-# Format:
-# fourcc: container
-  # Description:
-  # fourcc:
-    # used by OpenCV VideoWriter
-  # container:
-    # file extension
-
-video-formats:
-  mp4v: avi
-
-# Default Arduino hardware settings
-arduino:
-  address: /dev/ttyACM0
-  pin: 9
