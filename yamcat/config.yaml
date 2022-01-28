@@ -21,6 +21,8 @@ camera-names:
 
 video-formats:
   mp4v: avi
+  h264: mp4
+  raw: avi
 
 # *** Default Arduino hardware settings *** #
 arduino:

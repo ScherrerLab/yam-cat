@@ -53,7 +53,7 @@ class Params():
             framerate: int,
             width: int,
             height: int,
-            destination_dir: Path,
+            destination_dir: Union[Path, str],
     ):
         """
         All parameters for multi-camera acquisition.
@@ -104,7 +104,7 @@ class Params():
         #
         # else:
 
-        self.destination_dir: Path = destination_dir
+        self.destination_dir: Path = Path(destination_dir)
 
         self.video_extension = get_default_config()['video-formats'][self.video_format]
 

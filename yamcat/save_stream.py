@@ -28,7 +28,34 @@ import os
 gi.require_version("Tcam", "0.1")
 gi.require_version("Gst", "1.0")
 
-from gi.repository import Tcam, Gst
+from gi.repository import Tcam, Gst, GObject
+import logging
+from datetime import datetime
+
+
+def Set_Property(source, PropertyName, value):
+    try:
+
+        property = source.get_tcam_property(PropertyName)
+        if(type(value) is int and property.type == 'double'):
+            value = float(value)
+
+        if(type(value) is float and property.type == 'integer'):
+            value = int(value)
+
+
+        result = source.set_tcam_property(PropertyName,GObject.Value(type(value),value))
+        if result is False:
+            print("Failed to set {} to value {}. value type is {} Property type is {}, range is {}-{}".format(
+                PropertyName, value,
+                type(value),
+                property.type,
+                property.min,
+                property.max)
+            )
+    except Exception as error:
+        print("Error set Property {0}: {1}",PropertyName, format(error))
+        raise
 
 
 @click.command()
@@ -54,6 +81,14 @@ def main(
         preview_position,
         preview_size
 ):
+    log_level = 'DEBUG'
+    log_format = "%(asctime)s %(levelname)s %(pathname)s %(lineno)s \n %(message)s "
+    log_file = f'/home/labuser/acq_logs/' \
+               f'{datetime.now().strftime("acquire-%Y.%m.%d.%H.%M.%S-%f")}_' \
+               f'{camera_name}_' \
+               f'{device_guid}.ycl'
+
+
     Gst.init(sys.argv)  # init gstreamer
 
     # this line sets the gstreamer default logging level
@@ -87,10 +122,24 @@ def main(
                                 f" ! avimux"
                                 f" ! filesink name=fsink")
 
+    # pipeline = Gst.parse_launch(f"tcambin name=bin"
+    #                             f" ! video/x-raw,format=BGRx,width={dims[0]},height={dims[1]},framerate={fps}/1"
+    #                             f" ! videoconvert"
+    #                             f" ! x264enc tune=zerolatency byte-stream=true bitrate=10000 threads=3"
+    #                             f" ! mpegtsmux"
+    #                             f" ! filesink name=fsink")
+
     # serial is defined, thus make the source open that device
     if serial is not None:
         camera = pipeline.get_by_name("bin")
         camera.set_property("serial", serial)
+
+    # In case a color camera is used, the white balance automatic must be
+    # disabled, because this does not work good in trigger mode
+    Set_Property(camera, "Whitebalance Auto", False)
+    Set_Property(camera, "Whitebalance Red", 86)
+    Set_Property(camera, "Whitebalance Blue", 211)
+    Set_Property(camera, "Whitebalance Green", 64)
 
     parent_dir = Path(video_output_path).parent
 
