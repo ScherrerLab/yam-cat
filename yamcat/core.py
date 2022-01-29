@@ -287,6 +287,7 @@ class Operator:
         self.arduino_trigger: ArduinoTrigger = None
 
         self.camera_guids: List[str] = get_tiscam_serial_numbers()
+
         self.camera_names: dict = dict.fromkeys(self.camera_guids)
         default_config = get_default_config()
         for guid in self.camera_guids:

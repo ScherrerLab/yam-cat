@@ -2,10 +2,10 @@
 
 # *** Default camera names *** #
 camera-names:
-  40120421: left
-  40120422: right
-  40120423: back
-  40120424: front
+  "40120421": left
+  "40120422": right
+  "40120423": back
+  "40120424": front
 
 # *** Supported Video Formats *** #
 # !! WIP, NOT USED !!
@@ -41,16 +41,16 @@ arduino:
 camera-serials:
   23839514: 4
   40092194: 2
-  40120421: 0
-  40120422: 0
-  40120423: 0
-  40120424: 0
+  "40120421": 0
+  "40120422": 0
+  "40120423": 0
+  "40120424": 0
 
 # tiscams don't have a specific trigger line, so just set as 0
 camera-guids:
   2676016BC31A: 4
   267601CA59E7: 2
-  40120421: 0
-  40120422: 0
-  40120423: 0
-  40120424: 0
+  "40120421": 0
+  "40120422": 0
+  "40120423": 0
+  "40120424": 0

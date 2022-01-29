@@ -96,12 +96,17 @@ class MainWindow(QtWidgets.QMainWindow):
         self.ui.listWidgetCameraGUID.itemClicked.connect(self.highlight_preview)
 
         self.ui.lineEditArduinoAddress.setText(get_default_config()['arduino']['address'])
+        self.ui.pushButtonConnectArduino.clicked.connect(self.connect_arduino)
 
         self.ui.comboBoxVideoFormat.addItems(list(get_default_config()['video-formats'].keys()))
 
         self.ui.lineEditParentDir.textEdited.connect(self.validate_path)
         self.ui.lineEditVideoSubDir.textEdited.connect(self.validate_path)
         self.ui.spinBoxNumericalSuffix.valueChanged.connect(self.validate_path)
+
+        self.ui.pushButtonPrime.clicked.connect(self.prime)
+        self.ui.pushButtonRecord.clicked.connect(self.record)
+        self.ui.pushButtonAbort.clicked.connect(self.abort)
 
     def scan_cameras(self):
         self.ui.listWidgetCameraGUID.clear()
@@ -190,7 +195,7 @@ class MainWindow(QtWidgets.QMainWindow):
     @present_exceptions('Camera Config Error', 'Error setting camera configuration')
     def get_camera_configs(self, *args, **kwargs) -> List[CameraConfig]:
         camera_configs = []
-        for ix in self.ui.listWidgetCameraGUID.count():
+        for ix in range(0, self.ui.listWidgetCameraGUID.count()):
             guid = self.ui.listWidgetCameraGUID.item(ix).text()
             name = self.ui.listWidgetCameraName.item(ix).text()
 
@@ -208,14 +213,16 @@ class MainWindow(QtWidgets.QMainWindow):
 
     @present_exceptions('Parameters error', 'Error validating parameters')
     def get_params(self, *args, **kwargs):
+        dims = self.ui.comboBoxResolution.currentText().split('x')
+
         params = Params(
             arduino_address=self.ui.lineEditArduinoAddress.text(),
             camera_configs=self.get_camera_configs(),
             duration=self.ui.spinBoxDuration.value(),
             video_format=self.ui.comboBoxVideoFormat.currentText(),
             framerate=self.ui.comboBoxFramerate.currentText(),
-            width=self.ui.spinBoxWidth.value(),
-            height=self.ui.spinBoxHeight.value(),
+            width=dims[0],
+            height=dims[1],
             destination_dir=self._construct_full_destination_dir()
         )
 
@@ -238,6 +245,10 @@ class MainWindow(QtWidgets.QMainWindow):
         """
         Validate the path to the dir to save the videos to make sure videos aren't overwritten
         """
+
+        if self.operator.arduino_trigger is None:
+            return
+
         path = self._construct_full_destination_dir()
         if path.is_dir():
             self.ui.labelPathStatus.setText("<b>Path exists! Change parent dir + subdir combination.</b>")
@@ -246,8 +257,18 @@ class MainWindow(QtWidgets.QMainWindow):
             self.ui.labelPathStatus.setText("<b>Path is ok!</b>")
             self.ui.pushButtonPrime.setEnabled(True)
 
-    def prime(self):
+    @present_exceptions()
+    def prime(self, *args, **kwargs):
+        if self.ui.lineEditParentDir.text() == '':
+            raise ValueError("You must set a parent dir")
+
+        if self.ui.lineEditVideoSubDir.text() == '':
+            raise ValueError("You must set a subdir")
+
         self.operator.params = self.get_params()
+        self.operator.arduino_trigger.set_fps(
+            self.operator.params.framerate
+        )
         self.operator.prime()
         self.set_ui_mode(MODE_PRIMED)
 
@@ -262,6 +283,11 @@ class MainWindow(QtWidgets.QMainWindow):
         self.operator.abort_record()
         self.set_ui_mode(MODE_DE_PRIME)
         self.set_ui_mode(MODE_ARDUINO_CONNECTED)
+
+        if self.ui.checkBoxNumericalSuffix.isChecked():
+            self.ui.spinBoxNumericalSuffix.setValue(
+                self.ui.spinBoxNumericalSuffix.value() + 1
+            )
 
     def start_preview(self):
         pass

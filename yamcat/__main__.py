@@ -2,7 +2,7 @@ import sys
 import logging
 from datetime import datetime
 from PyQt5 import QtWidgets
-from .main_window import MainWindow
+from main_window import MainWindow
 
 
 log_level = 'DEBUG'

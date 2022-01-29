@@ -134,12 +134,17 @@ def main(
         camera = pipeline.get_by_name("bin")
         camera.set_property("serial", serial)
 
+    Set_Property(camera, "Trigger Mode", True)
+    Set_Property(camera, "Trigger Polarity", "Rising Edge")
+
     # In case a color camera is used, the white balance automatic must be
     # disabled, because this does not work good in trigger mode
     Set_Property(camera, "Whitebalance Auto", False)
     Set_Property(camera, "Whitebalance Red", 86)
     Set_Property(camera, "Whitebalance Blue", 211)
     Set_Property(camera, "Whitebalance Green", 64)
+
+
 
     parent_dir = Path(video_output_path).parent
 

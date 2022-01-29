@@ -352,7 +352,7 @@ You may drag and drop items in this list so that camera names and GUIDs correspo
             </widget>
            </item>
            <item>
-            <widget class="QComboBox" name="comboBoxFramerate_2">
+            <widget class="QComboBox" name="comboBoxResolution">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
                <horstretch>0</horstretch>
@@ -686,7 +686,7 @@ Disabled if set to -1</string>
   <tabstop>spinBoxDuration</tabstop>
   <tabstop>comboBoxVideoFormat</tabstop>
   <tabstop>comboBoxFramerate</tabstop>
-  <tabstop>comboBoxFramerate_2</tabstop>
+  <tabstop>comboBoxResolution</tabstop>
   <tabstop>lineEditParentDir</tabstop>
   <tabstop>lineEditVideoSubDir</tabstop>
   <tabstop>spinBoxNumericalSuffix</tabstop>
