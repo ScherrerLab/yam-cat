@@ -80,16 +80,6 @@ def unpack_args(params: dict):
 
 
 class MainWindow(QtWidgets.QMainWindow):
-    ag = QtWidgets.QDesktopWidget().availableGeometry()
-    preview_size = (ag.width() / 2, ag.height() / 2)
-    preview_positions = \
-        {
-            'top-left': (0, 0),
-            'top-right': (ag.width() / 2, 0),
-            'bottom-left': (0, ag.height() / 2),
-            'bottom-right': (ag.width() / 2, ag.height() / 2)
-        }
-
     def __init__(self):
         QtWidgets.QMainWindow.__init__(self)
         self.operator = Operator()
@@ -126,8 +116,9 @@ class MainWindow(QtWidgets.QMainWindow):
         # TODO: make them editable
         for ix in range(len(self.operator.camera_guids)):
             item_cam_name = self.ui.listWidgetCameraName.item(ix)
-
-            item_cam_name.setFlags(item_cam_name.flags())
+            guid = self.operator.camera_guids[ix]
+            cam_name = self.operator.camera_names[guid]
+            item_cam_name.setText(cam_name)
 
     def camera_config_changed(self):
         pass
