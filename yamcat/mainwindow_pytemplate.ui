@@ -109,10 +109,10 @@ You may drag and drop items in this list so that camera names and GUIDs correspo
 You may drag and drop items in this list so that camera names and GUIDs correspond.</string>
                   </property>
                   <property name="dragDropMode">
-                   <enum>QAbstractItemView::InternalMove</enum>
+                   <enum>QAbstractItemView::NoDragDrop</enum>
                   </property>
                   <property name="defaultDropAction">
-                   <enum>Qt::MoveAction</enum>
+                   <enum>Qt::IgnoreAction</enum>
                   </property>
                   <property name="alternatingRowColors">
                    <bool>true</bool>
@@ -178,7 +178,7 @@ You may drag and drop items in this list so that camera names and GUIDs correspo
                    <enum>QAbstractItemView::NoDragDrop</enum>
                   </property>
                   <property name="defaultDropAction">
-                   <enum>Qt::CopyAction</enum>
+                   <enum>Qt::IgnoreAction</enum>
                   </property>
                   <property name="alternatingRowColors">
                    <bool>true</bool>
@@ -280,7 +280,23 @@ You may drag and drop items in this list so that camera names and GUIDs correspo
             </widget>
            </item>
            <item>
-            <widget class="QComboBox" name="comboBoxVideoFormat"/>
+            <widget class="QComboBox" name="comboBoxVideoFormat">
+             <item>
+              <property name="text">
+               <string>raw</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>h264</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>h265</string>
+              </property>
+             </item>
+            </widget>
            </item>
            <item>
             <spacer name="horizontalSpacer">
@@ -321,70 +337,47 @@ You may drag and drop items in this list so that camera names and GUIDs correspo
                <string>60</string>
               </property>
              </item>
+             <item>
+              <property name="text">
+               <string>30</string>
+              </property>
+             </item>
             </widget>
            </item>
            <item>
             <widget class="QLabel" name="label_6">
              <property name="text">
-              <string>Width:</string>
+              <string>Resolution:</string>
              </property>
             </widget>
            </item>
            <item>
-            <widget class="QSpinBox" name="spinBoxWidth">
-             <property name="enabled">
-              <bool>false</bool>
+            <widget class="QComboBox" name="comboBoxFramerate_2">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
              </property>
-             <property name="suffix">
-              <string> px</string>
-             </property>
-             <property name="minimum">
-              <number>128</number>
-             </property>
-             <property name="maximum">
-              <number>3840</number>
-             </property>
-             <property name="singleStep">
-              <number>128</number>
-             </property>
-             <property name="value">
-              <number>2048</number>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QLabel" name="label_7">
-             <property name="text">
-              <string>Height:</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QSpinBox" name="spinBoxHeight">
-             <property name="enabled">
-              <bool>false</bool>
-             </property>
-             <property name="suffix">
-              <string> px</string>
-             </property>
-             <property name="minimum">
-              <number>128</number>
-             </property>
-             <property name="maximum">
-              <number>3840</number>
-             </property>
-             <property name="singleStep">
-              <number>128</number>
-             </property>
-             <property name="value">
-              <number>1536</number>
-             </property>
+             <item>
+              <property name="text">
+               <string>2048x1536</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>1920x1080</string>
+              </property>
+             </item>
             </widget>
            </item>
            <item>
             <spacer name="horizontalSpacer_2">
              <property name="orientation">
               <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="sizeType">
+              <enum>QSizePolicy::MinimumExpanding</enum>
              </property>
              <property name="sizeHint" stdset="0">
               <size>
@@ -395,6 +388,18 @@ You may drag and drop items in this list so that camera names and GUIDs correspo
             </spacer>
            </item>
           </layout>
+         </item>
+         <item>
+          <widget class="QLabel" name="label_7">
+           <property name="font">
+            <font>
+             <bold>true</bold>
+            </font>
+           </property>
+           <property name="text">
+            <string>Save path</string>
+           </property>
+          </widget>
          </item>
          <item>
           <widget class="QLabel" name="label_5">
@@ -681,8 +686,7 @@ Disabled if set to -1</string>
   <tabstop>spinBoxDuration</tabstop>
   <tabstop>comboBoxVideoFormat</tabstop>
   <tabstop>comboBoxFramerate</tabstop>
-  <tabstop>spinBoxWidth</tabstop>
-  <tabstop>spinBoxHeight</tabstop>
+  <tabstop>comboBoxFramerate_2</tabstop>
   <tabstop>lineEditParentDir</tabstop>
   <tabstop>lineEditVideoSubDir</tabstop>
   <tabstop>spinBoxNumericalSuffix</tabstop>
