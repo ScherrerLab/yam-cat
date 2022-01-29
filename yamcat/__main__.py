@@ -1,16 +1,13 @@
 import sys
-from core import ArduinoTrigger
 import logging
 from datetime import datetime
-from pypylon import pylon
-import time
-import subprocess
-import os
+from PyQt5 import QtWidgets
+from .main_window import MainWindow
 
 
 log_level = 'DEBUG'
 log_format = "%(asctime)s %(levelname)s %(pathname)s %(lineno)s \n %(message)s "
-log_file = f'/home/lab/{datetime.now().strftime("%Y-%m-%d_%H.%M.%S-%f")}.ycl'
+log_file = f'/home/labuser/yamcat-logs/{datetime.now().strftime("%Y-%m-%d_%H.%M.%S-%f")}.ycl'
 
 logging.basicConfig(
     level=log_level,
@@ -40,62 +37,9 @@ root_logger.addHandler(
     logging.StreamHandler(sys.stderr)
 )
 
+app = QtWidgets.QApplication([])
 
-def unpack_args(params: dict):
-    return [
-        arg for arggroup in [
-            arggroup.split(' ') for arggroup in [
-                f'--{k} {v}' for (k, v) in params.items()
-            ]
-        ] for arg in arggroup
-    ]
+mw = MainWindow()
+mw.show()
 
-
-if __name__ == '__main__':
-    arduino_trigger = ArduinoTrigger(address='/dev/ttyACM0', pin=9)
-    arduino_trigger.set_fps(50)
-
-    tlFactory = pylon.TlFactory.GetInstance()
-    devices = tlFactory.EnumerateDevices()
-
-    guids = ['2676016BC31A', '267601CA59E7']
-    trigger_lines = [4, 2]
-
-    acquire_params_left = \
-        {
-            'device-guid':  guids[0],
-            'camera-name':  'left',
-            'fps':          50,
-            'duration':     15,
-            'trigger-line': trigger_lines[0],
-            'video-output-path': '/home/lab/vidleft.avi',
-            'fourcc':       'mp4v',
-            'dims':         '1024,1024'
-        }
-
-    acquire_params_right = acquire_params_left.copy()
-    acquire_params_right.update(
-        {
-            'device-guid': guids[1],
-            'camera-name': 'right',
-            'trigger-line': trigger_lines[1],
-            'video-output-path': '/home/lab/vidright.avi',
-        }
-    )
-
-    args_left = unpack_args(acquire_params_left)
-    args_right = unpack_args(acquire_params_right)
-
-    acquire_subproc_path = '/home/lab/repos/yam-cat/yamcat/acquire_subprocess.py'
-
-    subprocess.Popen(
-        ['python', acquire_subproc_path] + args_left, env=os.environ.copy()
-    )
-
-    subprocess.Popen(
-        ['python', acquire_subproc_path] + args_right, env=os.environ.copy()
-    )
-
-    time.sleep(5)
-
-    arduino_trigger.start()
+app.exec()
