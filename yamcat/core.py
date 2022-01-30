@@ -14,6 +14,8 @@ import threading
 from pyqtgraph import ImageView, mkQApp
 from PyQt5 import QtCore
 import numpy as np
+from warnings import warn
+from functools import partial
 
 logger = logging.getLogger()
 
@@ -33,10 +35,12 @@ class ArduinoTrigger(Process):
             Address of the arduino, example: `/dev/ttyACM0`
         pin: int
             Arduino pin for sending the 5V trigger square waves
+        callback: callable
+            Called when the arduino has successfully connected
         """
         super().__init__()
 
-        logger.info(f'Connecting to Arduino at: {address}, pin#: {pin}')
+        logger.info(f'Connecting to Arduino at: {address}, set trigger pin#: {pin}')
         self.board = Arduino(address)
         self.pin = int(pin)
 
@@ -44,7 +48,7 @@ class ArduinoTrigger(Process):
         # self.reset_pin()
 
         self.fps: int = None
-        logger.info(f'Yay Arduino is connected!')
+        logger.info(f'** Yay Arduino is connected! **')
 
     def set_fps(self, fps: int):
         """
@@ -256,7 +260,7 @@ class POpenThread:
     Wrapper for the Acquisition Subprocess to attach a callback function when the acquisition process has finished
     """
     def __init__(self):
-        self.proc = None
+        self.proc: subprocess.Popen = None
 
     def runInThread(self, callback: callable, cmd: List[str]):
         """
@@ -275,7 +279,7 @@ class POpenThread:
                                   args=(callback, cmd))
         thread.start()
 
-        return self.proc
+        return self
 
 
 class Operator:
@@ -291,11 +295,20 @@ class Operator:
         self.camera_names: dict = dict.fromkeys(self.camera_guids)
         default_config = get_default_config()
         for guid in self.camera_guids:
+            if guid not in default_config['camera-names'].keys():
+                warn(f"The following camera guid is not specified in the config yaml: {guid}")
+
+                ix = self.camera_guids.index(guid)
+                self.camera_guids.pop(ix)
+
+                self.camera_names.pop(guid)
+                continue
+
             self.camera_names[guid] = default_config['camera-names'][guid]
 
         self.params: Params = None
 
-        self.acquire_subprocesses: Dict[str, subprocess.Popen] = dict.fromkeys(self.camera_guids)
+        self.acquire_subprocesses: Dict[str, POpenThread] = dict.fromkeys(self.camera_guids)
 
         self.record_finished_counter = 0
 
@@ -355,11 +368,11 @@ class Operator:
             # )
 
             self.acquire_subprocesses[guid] = POpenThread().start(
-                callback=self.record_finished,
+                callback=partial(self.record_finished, guid, name),
                 cmd=['python', get_acquire_subprocess_path()] + args
             )
 
-        time.sleep(1)
+        time.sleep(2)
 
         logger.info("** Cameras Primed **")
 
@@ -370,10 +383,12 @@ class Operator:
         self._kill_subprocesses()
 
     def _kill_subprocesses(self):
-        for sp in self.acquire_subprocesses.values():
-            os.killpg(os.getpgid(sp.pid), signal.SIGTERM)
+        sps = list(self.acquire_subprocesses.values())
+        for sp in sps:
+            sp.proc.send_signal(signal.SIGINT)
+            # os.killpg(os.getpgid(sp.pid), signal.SIGINT)
 
-        self.acquire_subprocesses: Dict[str, subprocess.Popen] = dict.fromkeys(self.camera_guids)
+        self.acquire_subprocesses: Dict[str, POpenThread] = dict.fromkeys(self.camera_guids)
 
     def record(self):
         """
@@ -383,12 +398,13 @@ class Operator:
         self.arduino_trigger.start()
         self.record_finished_counter = 0
 
-    def record_finished(self):
+    def record_finished(self, cam_guid, cam_name):
         """
         Callback function, called when an acquisition subprocess has finished.
         """
-        print(f"Recording finished, {self.record_finished_counter}")
         self.record_finished_counter += 1
+        logger.info(f"Recording finished, counter: {self.record_finished_counter}, guid: {cam_guid} name: {cam_name}")
+
         if self.record_finished_counter == len(self.acquire_subprocesses.keys()):
             self.record_finished_all()
 
@@ -404,7 +420,6 @@ class Operator:
             self.parent_ui.record_finished()
 
     def abort_record(self):
-        self._reset_arduino()
         self._kill_subprocesses()
 
     def _reset_arduino(self):

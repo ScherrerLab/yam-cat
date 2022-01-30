@@ -67,8 +67,6 @@ def Set_Property(source, PropertyName, value):
 @click.option('--video-output-path', type=str)
 @click.option('--fourcc', type=str)
 @click.option('--dims', type=str)
-@click.option('--preview-position', type=str)
-@click.option('--preview-size', type=str)
 def main(
         device_guid,
         camera_name,
@@ -78,8 +76,6 @@ def main(
         video_output_path,
         fourcc,
         dims,
-        preview_position,
-        preview_size
 ):
     log_level = 'DEBUG'
     log_format = "%(asctime)s %(levelname)s %(pathname)s %(lineno)s \n %(message)s "

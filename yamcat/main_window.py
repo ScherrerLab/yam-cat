@@ -1,3 +1,5 @@
+import time
+
 from PyQt5 import QtWidgets, QtGui, QtCore
 from mainwindow_pytemplate import Ui_MainWindow
 from pathlib import Path
@@ -108,6 +110,8 @@ class MainWindow(QtWidgets.QMainWindow):
         self.ui.pushButtonRecord.clicked.connect(self.record)
         self.ui.pushButtonAbort.clicked.connect(self.abort)
 
+        self.current_mode: str = None
+
     def scan_cameras(self):
         self.ui.listWidgetCameraGUID.clear()
         self.ui.listWidgetCameraName.clear()
@@ -179,10 +183,15 @@ class MainWindow(QtWidgets.QMainWindow):
             self.ui.pushButtonRecord.setEnabled(False)
             self.ui.pushButtonAbort.setEnabled(False)
 
-            if self.ui.checkBoxNumericalSuffix.isChecked():
-                self.ui.spinBoxNumericalSuffix.setValue(
-                    self.ui.spinBoxNumericalSuffix.value() + 1
-                )
+            if self.ui.spinBoxNumericalSuffix.value() > -1:
+                if self.ui.checkBoxNumericalSuffix.isChecked():
+                    self.ui.spinBoxNumericalSuffix.setValue(
+                        self.ui.spinBoxNumericalSuffix.value() + 1
+                    )
+
+            self.validate_path()
+
+        self.current_mode = mode
 
     def connect_arduino(self):
         self.operator.params = self.get_params()
@@ -191,6 +200,7 @@ class MainWindow(QtWidgets.QMainWindow):
         )
 
         self.set_ui_mode(MODE_ARDUINO_CONNECTED)
+        self.validate_path()
 
     @present_exceptions('Camera Config Error', 'Error setting camera configuration')
     def get_camera_configs(self, *args, **kwargs) -> List[CameraConfig]:
@@ -249,7 +259,18 @@ class MainWindow(QtWidgets.QMainWindow):
         if self.operator.arduino_trigger is None:
             return
 
+        if self.ui.lineEditParentDir.text() == '':
+            self.ui.labelPathStatus.setText("<b>Parent dir is not set!</b>")
+            self.ui.pushButtonPrime.setEnabled(False)
+            return
+
+        if self.ui.lineEditVideoSubDir.text() == '':
+            self.ui.labelPathStatus.setText("<b>Subdir is not set!</b>")
+            self.ui.pushButtonPrime.setEnabled(False)
+            return
+
         path = self._construct_full_destination_dir()
+
         if path.is_dir():
             self.ui.labelPathStatus.setText("<b>Path exists! Change parent dir + subdir combination.</b>")
             self.ui.pushButtonPrime.setEnabled(False)
@@ -277,17 +298,18 @@ class MainWindow(QtWidgets.QMainWindow):
         self.set_ui_mode(MODE_RECORD)
 
     def record_finished(self):
+        self.set_ui_mode(MODE_DE_PRIME)
         self.set_ui_mode(MODE_RECORD_FINISHED)
 
     def abort(self):
         self.operator.abort_record()
         self.set_ui_mode(MODE_DE_PRIME)
-        self.set_ui_mode(MODE_ARDUINO_CONNECTED)
+        self.set_ui_mode(MODE_RECORD_FINISHED)
 
-        if self.ui.checkBoxNumericalSuffix.isChecked():
-            self.ui.spinBoxNumericalSuffix.setValue(
-                self.ui.spinBoxNumericalSuffix.value() + 1
-            )
+        # if self.ui.checkBoxNumericalSuffix.isChecked():
+        #     self.ui.spinBoxNumericalSuffix.setValue(
+        #         self.ui.spinBoxNumericalSuffix.value() + 1
+        #     )
 
     def start_preview(self):
         pass
