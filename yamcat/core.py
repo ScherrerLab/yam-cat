@@ -337,6 +337,7 @@ class Operator:
         -------
 
         """
+        logger.info(f"Priming, destination dir is:\n{self.params.destination_dir}")
         os.makedirs(self.params.destination_dir, exist_ok=True)
 
         cameras_to_use = list()
