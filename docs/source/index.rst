@@ -10,6 +10,8 @@ Welcome to yamcat's documentation!
    :maxdepth: 2
    :caption: Contents:
 
+   ./gui_instructions
+
 
 
 Indices and tables
