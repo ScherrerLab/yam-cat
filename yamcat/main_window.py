@@ -274,6 +274,9 @@ class MainWindow(QtWidgets.QMainWindow):
         if path.is_dir():
             self.ui.labelPathStatus.setText("<b>Path exists! Change parent dir + subdir combination.</b>")
             self.ui.pushButtonPrime.setEnabled(False)
+        elif ' ' in str(path):
+            self.ui.labelPathStatus.setText("<b>Path must not contain spaces!</b>")
+            self.ui.pushButtonPrime.setEnabled(False)
         else:
             self.ui.labelPathStatus.setText("<b>Path is ok!</b>")
             self.ui.pushButtonPrime.setEnabled(True)
