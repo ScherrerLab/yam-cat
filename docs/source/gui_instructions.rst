@@ -15,9 +15,9 @@ After logging in, press ``Ctrl + Alt + T`` on your keyboard to bring up a termin
 
 .. image:: ./gui_docs_imgs/1.png
 
-First activate the ``yamcat`` virtual environment. You can do this by just entering ``ae_yamcat``. You can also just type in "ae_" and press "Page Up" on your keyboard to scroll through the history until ``ae_yamcat`` comes up.
+First activate the ``yamcat`` virtual environment. You can do this by just entering ``ae_yamcat``. You can also just type in ``ae_`` and press "Page Up" on your keyboard to scroll through the history until ``ae_yamcat`` comes up.
 
-.. image:: .. image:: ./gui_docs_imgs/3.png
+.. image:: ./gui_docs_imgs/3.png
 
 Next, launch ``yamcat`` by entering ``python ~/repos/yam-cat/yamcat``. Similar to above, you can just start typing in "py" and then press "Page Up" to scroll through your history until it comes up.
 
