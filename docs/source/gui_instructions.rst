@@ -8,6 +8,7 @@ Video
 
     <iframe width="560" height="315" src="https://www.youtube.com/embed/qgNg3yVzkMY" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 
+
 Launch yamcat
 =============
 
@@ -23,7 +24,7 @@ Next, launch ``yamcat`` by entering ``python ~/repos/yam-cat/yamcat``. Similar t
 
 .. image:: ./gui_docs_imgs/4.png
 
-The ``yamcatt`` GUI should launch. Ignore any ``at.qpa.xcb`` errors (you probably won't see this, if working with the computer on-site. I made this tutorial remotely)
+The ``yamcat`` GUI should launch. Ignore any ``at.qpa.xcb`` errors (you probably won't see this, if working with the computer on-site. I made this tutorial remotely)
 
 .. image:: ./gui_docs_imgs/5.png
 
@@ -77,7 +78,7 @@ Video files correponding to each "Camera name" will be found within the above di
 Prime
 =====
 
-Now you can **"Prime"** the cameras for recording. This sets up the camera processes so that they're ready to start acquiring frames as soon as the trigger starts. *This will take a 2-3 seconds after you click the button*.
+Now you can **"Prime"** the cameras for recording. This sets up the camera processes so that they're ready to start acquiring frames as soon as the trigger starts. *This will take about 2-3 seconds after you click the button*.
 
 *You can prepare the mouse, but don't place it in the field of view just yet.*
 
@@ -92,7 +93,7 @@ Once the cameras are primed you will see the message ``**Cameras Primed**``. You
 Record
 ======
 
-Since the cameras are now primed you can click "Record" to start the trigger. Once you see the message ``Started Trigge`` (usually instant) it means that frames are being grabbed.
+Since the cameras are now primed you can click "Record" to start the trigger. Once you see the message ``Started Trigger`` (usually instant) it means that frames are being grabbed.
 
 *You may now put your mouse in field of view.*
 
