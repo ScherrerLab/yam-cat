@@ -1,7 +1,13 @@
 # yam-cat
 **Y**et **A**nother **M**ulti **C**amera **A**cquisition **T**ool
 
-WIP
+[![Documentation Status](https://readthedocs.org/projects/yamcat/badge/?version=latest)](https://yamcat.readthedocs.io/en/latest/?badge=latest)
+
+A multi-camera synchronized acquisition tool I wrote during my rotation in the Scherrer Lab at UNC Chapel Hill.
+
+The current master branch is designed to work with "The Imaging Source" cameras. See the November 2021 commits for a version that works with Basler cameras. To run the GUI just execute `yam-cat/yamcat` with python. To use the backend directly see `yam-cat/yamcat/test_operator.py`.
+
+Docs: https://yamcat.readthedocs.io/en/latest/
 
 # Installation
 
@@ -23,7 +29,6 @@ source ~/python-venvs/yamcat/bin/activate
 cd ~/repos
 git clone https://github.com/ScherrerLab/yam-cat.git
 pip install -r requirements.txt
-
 ```
 
 
