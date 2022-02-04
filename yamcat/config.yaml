@@ -4,8 +4,8 @@
 camera-names:
   "40120421": left
   "40120422": right
-  "40120423": back
-  "40120424": front
+  "40120423": front
+  "40120424": back
 
 # *** Supported Video Formats *** #
 # !! WIP, NOT USED !!
@@ -20,7 +20,6 @@ camera-names:
     # file extension
 
 video-formats:
-  mp4v: avi
   h264: mp4
   raw: avi
 
