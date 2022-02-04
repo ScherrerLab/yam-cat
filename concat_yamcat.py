@@ -13,7 +13,7 @@ views = ['front', 'back', 'left', 'right']  # all the camera views
 @click.command()
 @click.option('--parent-dir', type=str)
 @click.option('--fps', type=str)
-def main(parent_dir: str, fps: int):
+def main(parent_dir: str, fps: str):
     """
     Merge vids for all subdirs in the given parent dir
 
@@ -30,7 +30,7 @@ def main(parent_dir: str, fps: int):
         if os.path.isfile(subdir):
             continue
 
-        merge(subdir, fps)
+        merge(subdir, int(fps))
 
 
 def merge(subdir: Path, fps: int):
