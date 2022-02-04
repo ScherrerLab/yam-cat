@@ -8,7 +8,30 @@ from warnings import warn
 from typing import *
 
 views = ['front', 'back', 'left', 'right']  # all the camera views
-fourcc = cv2.VideoWriter_fourcc(*'mp4v')
+
+
+@click.command()
+@click.option('--parent-dir', type=str)
+@click.option('--fps', type=str)
+def main(parent_dir: str, fps: int):
+    """
+    Merge vids for all subdirs in the given parent dir
+
+    Parameters
+    ----------
+    parent_dir: str
+        parent dir containing the subdirs (subdirs usually correspond to a mouse)
+    fps: int
+        framerate
+    """
+    parent_dir = Path(parent_dir)
+
+    for subdir in tqdm(parent_dir.glob('*')):
+        if os.path.isfile(subdir):
+            continue
+
+        merge(subdir, fps)
+
 
 def merge(subdir: Path, fps: int):
     """
@@ -38,8 +61,8 @@ def merge(subdir: Path, fps: int):
         caps[view] = cv2.VideoCapture(path)
 
     # dicts to store each frame as they are read
-    frame = dict.fromkeys(views)
-    rval = dict.fromkeys(views)  # the boolean rval
+    frame: Dict[str, np.ndarray] = dict.fromkeys(views)
+    rval: Dict[str, bool] = dict.fromkeys(views)  # the boolean rval
 
     video_writer: cv2.VideoWriter = None
 
@@ -79,14 +102,5 @@ def merge(subdir: Path, fps: int):
         video_writer.write(cv2.cvtColor(merged_frame, cv2.COLOR_RGB2BGR))
 
 
-@click.command()
-@click.option('--parent-dir', type=str)
-@click.option('--fps', type=str)
-def main(parent_dir: str, fps: int):
-    parent_dir = Path(parent_dir)
-
-    for subdir in tqdm(parent_dir.glob('*')):
-        if os.path.isfile(subdir):
-            continue
-
-        merge(subdir, fps)
+if __name__ == '__main__':
+    main()
