@@ -1,3 +1,4 @@
+import sys
 import numpy as np
 from pathlib import Path
 import cv2
@@ -57,7 +58,7 @@ def merge(subdir: Path, fps: int):
 
     # create capture objects for each view
     for view in views:
-        path = list(subdir.glob(f"{view}*"))[0]  # so that it's agnostic to .avi, .mp4 etc. whatever extension
+        path = list(subdir.glob(f"{view}*"))[0].as_posix()  # so that it's agnostic to .avi .mp4 etc. any extension
         caps[view] = cv2.VideoCapture(path)
 
     # dicts to store each frame as they are read
@@ -66,23 +67,31 @@ def merge(subdir: Path, fps: int):
 
     video_writer: cv2.VideoWriter = None
 
+    print(f"Writing video for subdir: {subdir.stem}\n")
+
+    frame_index = 0
+    break_loop = False
     while True:
         for view in views:  # read the frame for each view
             rval[view], frame[view] = caps[view].read()
 
             # if there is no frame from a view, assume the entire recording is finished
             if not rval[view]:  # when a video ends
+                break_loop = True  # because we need to exit 2 levels of loops
+
                 if video_writer is not None:
                     video_writer.release()  # release the video writer
 
                     for cap in list(caps.values()):  # release all the readers
                         cap.release()
-                break  # exit the loop
+
+        if break_loop:
+            break
 
         # create a video writer
         if video_writer is None:
-            width = frame['front'].shape[0] + frame['back'].shape[0]
-            height = frame['front'].shape[1] + frame['back'].shape[1]
+            width = 2048*2#frame['front'].shape[0] + frame['back'].shape[0]
+            height = 1536*2#['front'].shape[1]# + frame['back'].shape[1]
 
             fourcc = cv2.VideoWriter_fourcc(*'mp4v')
 
@@ -94,12 +103,18 @@ def merge(subdir: Path, fps: int):
                 isColor=True
             )
 
+        sys.stdout.write(f"\r Writing frame: {frame_index}")
+        sys.stdout.flush()
+
         merged_frame = np.vstack(
-            np.hstack(frame['front'], frame['back']),
-            np.hstack(frame['left'],  frame['right'])
+            [np.hstack([frame['front'], frame['back']]),
+             np.hstack([frame['left'],  frame['right']])]
         )
 
-        video_writer.write(cv2.cvtColor(merged_frame, cv2.COLOR_RGB2BGR))
+        video_writer.write(merged_frame)#cv2.cvtColor(merged_frame))#, cv2.COLOR_RGB2BGR))
+        frame_index += 1
+
+
 
 
 if __name__ == '__main__':
