@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>463</width>
-    <height>783</height>
+    <height>918</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -27,6 +27,7 @@
           <widget class="QGroupBox" name="groupBox_2">
            <property name="font">
             <font>
+             <weight>50</weight>
              <bold>false</bold>
             </font>
            </property>
@@ -105,8 +106,7 @@ You may drag and drop items in this list so that camera names and GUIDs correspo
                 <item>
                  <widget class="QListWidget" name="listWidgetCameraName">
                   <property name="toolTip">
-                   <string>Give a name for the cameras, the camera name is used as a prefix for the video files.
-You may drag and drop items in this list so that camera names and GUIDs correspond.</string>
+                   <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Give a name for the cameras, the camera name is used as a prefix for the video files.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                   </property>
                   <property name="dragDropMode">
                    <enum>QAbstractItemView::NoDragDrop</enum>
@@ -258,6 +258,9 @@ You may drag and drop items in this list so that camera names and GUIDs correspo
            </item>
            <item>
             <widget class="QSpinBox" name="spinBoxDuration">
+             <property name="enabled">
+              <bool>false</bool>
+             </property>
              <property name="suffix">
               <string> seconds</string>
              </property>
@@ -281,6 +284,9 @@ You may drag and drop items in this list so that camera names and GUIDs correspo
            </item>
            <item>
             <widget class="QComboBox" name="comboBoxVideoFormat">
+             <property name="enabled">
+              <bool>false</bool>
+             </property>
              <item>
               <property name="text">
                <string>raw</string>
@@ -329,7 +335,7 @@ You may drag and drop items in this list so that camera names and GUIDs correspo
             <widget class="QComboBox" name="comboBoxFramerate">
              <item>
               <property name="text">
-               <string>120</string>
+               <string>30</string>
               </property>
              </item>
              <item>
@@ -339,7 +345,7 @@ You may drag and drop items in this list so that camera names and GUIDs correspo
              </item>
              <item>
               <property name="text">
-               <string>30</string>
+               <string>120</string>
               </property>
              </item>
             </widget>
@@ -393,6 +399,7 @@ You may drag and drop items in this list so that camera names and GUIDs correspo
           <widget class="QLabel" name="label_7">
            <property name="font">
             <font>
+             <weight>75</weight>
              <bold>true</bold>
             </font>
            </property>
@@ -426,6 +433,9 @@ parent_dir/subdir-suffix/camera-name.avi</string>
             <widget class="QLineEdit" name="lineEditParentDir">
              <property name="toolTip">
               <string>This would be for something like an overarching experiment.</string>
+             </property>
+             <property name="text">
+              <string>/home/labuser/</string>
              </property>
              <property name="placeholderText">
               <string>/path/to/parent_dir</string>
@@ -472,7 +482,7 @@ parent_dir/subdir-suffix/camera-name.avi</string>
              </property>
              <property name="toolTip">
               <string>This is a subdir that is created under parent dir.
-For something like the experiment day.</string>
+For something like &quot;mouse&quot;</string>
              </property>
             </widget>
            </item>
@@ -523,6 +533,9 @@ Disabled if set to -1</string>
              <property name="maximum">
               <number>999</number>
              </property>
+             <property name="value">
+              <number>1</number>
+             </property>
             </widget>
            </item>
            <item>
@@ -569,6 +582,7 @@ Disabled if set to -1</string>
             <widget class="QLabel" name="labelPathStatus">
              <property name="font">
               <font>
+               <weight>75</weight>
                <bold>true</bold>
               </font>
              </property>
@@ -671,7 +685,7 @@ Disabled if set to -1</string>
      <x>0</x>
      <y>0</y>
      <width>463</width>
-     <height>19</height>
+     <height>30</height>
     </rect>
    </property>
   </widget>
