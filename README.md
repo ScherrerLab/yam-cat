@@ -32,6 +32,7 @@ python3 -m venv ~/python-venvs/yamcat
 source ~/python-venvs/yamcat/bin/activate
 cd ~/repos
 git clone https://github.com/ScherrerLab/yam-cat.git
+cd ./yam-cat
 pip install -r requirements.txt
 ```
 
