@@ -26,7 +26,8 @@ sudo apt-get install libcairo2-dev libjpeg-dev libgif-dev
 Create an environment for yamcat
 ```
 # create a dir for venvs if it doesn't already exist
-cd ~/python-venvs
+mkdir ~/python-venvs
+mkdir ~/repos
 python3 -m venv ~/python-venvs/yamcat
 source ~/python-venvs/yamcat/bin/activate
 cd ~/repos
