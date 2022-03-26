@@ -16,6 +16,7 @@ Docs: https://yamcat.readthedocs.io/en/latest/
 Make sure you have build tools, openblas etc.
 
 ```
+sudo apt update
 sudo apt install build-essential git python3-dev python3-venv python3-pip
 sudo apt install libopenblas*
 # these are needed for tiscamera
