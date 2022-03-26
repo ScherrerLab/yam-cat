@@ -20,7 +20,7 @@ sudo apt update
 sudo apt install build-essential git python3-dev python3-venv python3-pip
 sudo apt install libopenblas*
 # these are needed for tiscamera
-sudo apt-get install libcairo2-dev libjpeg-dev libgif-dev
+sudo apt-get install libcairo2-dev libjpeg-dev libgif-dev 
 ```
 
 Create an environment for yamcat
@@ -41,7 +41,7 @@ pip install -r requirements.txt
 
 ```
 cd ~/repos
-https://github.com/kushalkolar/tiscamera.git
+git clone https://github.com/kushalkolar/tiscamera.git
 cd tiscamera
 ./scripts/dependency-manager install
 sudo ./scripts/install-dependencies.sh --compilation --runtime
